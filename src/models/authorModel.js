@@ -5,20 +5,10 @@ const authorSchema = new mongoose.Schema({
     fname:{
         type:String, 
         required:true,
-    //     validate(value){
-    //         if(!validator.isAlpha(value)){
-    //          throw new Error("special character and numeric value can not be acepted")
-    //         }
-    //     }
      },
     lname:{
         type:String,
         required:true,
-        // validate(value){
-        //     if(!validator.isAlpha(value)){
-        //      throw new Error("special character and numeric value can not be acepted")
-        //     }
-        // }
     },
     title:{
         type:String,
@@ -30,11 +20,6 @@ const authorSchema = new mongoose.Schema({
         type:String,
         required:true, 
         unique:true,
-    //    validate(value){
-    //     if(!validator.isEmail(value)){
-    //         throw new Error("Email is invalid")
-    //     }
-    //    }
     },
     password:{
         type:String,

@@ -63,21 +63,21 @@ const createAuthor = async function(req, res){
 }
 
 const loginAuthor = async function(req,res){
-    let email = req.body.email
-    let password = req.body.password
-    let author = await authorModel.findOne({email:email,password:password})
-    if(!author){return res.send("Please use correct email or password")}
-    let token = jwt.sign(
-        {
-          authorId: author._id.toString(),
-          batch: "radon",
-          organisation: "FunctionUp",
-        },
-        "project-blog"
-      );
-      res.setHeader("x-api-key", token);
-      res.send({ status: true, token: token });
-    };
+  let email = req.body.email
+  let password = req.body.password
+  let author = await authorModel.findOne({email:email,password:password})
+  if(!author){return res.send("Please use correct email or password")}
+  let token = jwt.sign(
+      {
+        authorId: author._id.toString(),
+        batch: "radon",
+        organisation: "FunctionUp",
+      },
+      "project-blog"
+    );
+    res.setHeader("x-api-key", token);
+    res.send({ status: true, token: token });
+  };
 
 module.exports.createAuthor = createAuthor;
 module.exports.loginAuthor = loginAuthor
