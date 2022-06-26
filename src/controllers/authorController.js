@@ -10,23 +10,23 @@ const createAuthor = async function(req, res){
     //if fname is present then please check
     if(data.fname){
       let nameValidation = /^[A-Za-z]+$/
-    if (!nameValidation.test(data.fname)) { return res.status(400).send({ status:false, msg: "number or whiteSpaces are not allowed in fname" }) }
-      if(data.fname.trim().length==0) return res.status(400).send({status:false,msg:"empty space is not allowed"})
+    if (!nameValidation.test(data.fname)) { return res.status(400).send({ status:false, msg: "Numbers or WhiteSpaces are not allowed in fname" }) }
+      // if(data.fname.trim().length==0) return res.status(400).send({status:false,msg:"empty space is not allowed"})
     
     }
     //if lname is not present
     if(!data.lname){return res.status(400).send({status:false, msg:"lname is missing"})}
     //if lname is present then please check
     if(data.lname){
-      if(data.lname.trim().length==0 ) return res.status(400).send({status:false,msg:"empty space is not allowed"})
+      // if(data.lname.trim().length==0 ) return res.status(400).send({status:false,msg:"empty space is not allowed"})
       let nameValidation = /^[A-Za-z]+$/
-      if (!nameValidation.test(data.lname)) { return res.status(400).send({ status:false, msg: "number or whiteSpaces are not allowed in lname" }) }
+      if (!nameValidation.test(data.lname)) { return res.status(400).send({ status:false, msg: "Numbers or whiteSpaces are not allowed in lname" }) }
     }
     //title mandatory
     if(!data.title){return res.status(400).send({status:false, msg:"title is missing"})}
     if(data.title){
-      if(data.title.trim().length==0 ) return res.status(400).send({status:false,msg:"empty space is not allowed"})
-      if(!isNaN(data.title)){ return res.status(400).send({status:false, msg:"title can not be a number"})}
+      // if(data.title.trim().length==0 ) return res.status(400).send({status:false,msg:"empty space is not allowed"})
+      // if(!isNaN(data.title)){ return res.status(400).send({status:false, msg:"title can not be a number"})}
       let condition;
       if(data.title === "Mr" || data.title==="Miss" || data.title==="Mrs")
       {
@@ -45,7 +45,7 @@ const createAuthor = async function(req, res){
       if(!email.match(emailregex)){ return res.status(400).send({status:false,msg:"Email is invalid"})}
       let savedAuthorData = await authorModel.find({email:email})
       if(savedAuthorData.length>0)
-        return res.status(400).send({status:false,msg:"Email is allready existed"})
+        return res.status(400).send({status:false,msg:"Email is already exists"})
     }
      //password mandatory
      if(!data.password){ return res.status(400).send({status:false, msg:"password is missing"})}
