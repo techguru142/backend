@@ -10,7 +10,7 @@ const checkAuth = function (req, res, next) {
     if (!decodedToken) return res.status(400).send({ status: false, msg: "token is not valid" })
     next()
   } catch (err) {
-    res.status(500).send({ status: false, Error: err.message })
+   return res.status(500).send({ status: false, Error: err.message })
   }
 }
 

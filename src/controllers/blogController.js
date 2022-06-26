@@ -110,7 +110,7 @@ const createBlog = async function (req, res) {
     res.status(201).send({ status: true, data: createdBlogData })
   }
   catch (err) {
-    res.status(500).send({ msg: "Error", error: err.message })
+   return res.status(500).send({ msg: "Error", error: err.message })
   }
 }
 
@@ -142,7 +142,7 @@ const getBlogData = async function (req, res) {
     if (savedBlogData.length == 0) { return res.status(404).send({ status: false, msg: "Data not founds" }) }
     res.status(200).send({ status: true, data: savedBlogData })
   } catch (err) {
-    res.status(500).send({ msg: "Error", error: err.message })
+   return res.status(500).send({ msg: "Error", error: err.message })
   }
 }
 
@@ -229,7 +229,7 @@ const updateBlog = async function (req, res) {
   }
   catch (err) {
     console.log(err)
-    res.status(500).send({ status: false, msg: "", error: err.message })
+   return res.status(500).send({ status: false, msg: "", error: err.message })
   }
 
 }
@@ -253,14 +253,13 @@ const deleteByParams = async function (req, res) {
       if (!IsAvailable) { return res.status(404).send({ status: false, msg: "No blog with this Id exist" }) }
       if (IsAvailable["authorId"].valueOf() != authorLoggedIn){ return res.status(400).send({
          status: false, msg: 'Author logged is not allowed to modify the requested users data' })}
-      let deletedData = await blogModel.findOneAndUpdate({ _id: blogId, isDeleted: false }, { isDeleted: true, deletedAt: new Date() }, {
-        new: true
-      })
-      if (deletedData == null) { return res.status(404).send({ status: false, msg: "data not found" }) }
-      res.status(200).send(deletedData)
+      //deletion   
+      let deletedData = await blogModel.updateMany({ _id: blogId, isDeleted: false },{$set: { isDeleted: true, deletedAt: new Date() }},)
+      res.status(200).send()
+      if (deletedData["modifiedCount"] ==0) { return res.status(404).send({ status: false, msg: "data not found" }) }
   }
   catch (err) {
-    res.status(500).send({ msg: "Error", error: err.message })
+    return res.status(500).send({ msg: "Error", error: err.message })
   }
 }
 
@@ -273,7 +272,7 @@ const deleteByQueryParams = async function (req, res) {
     if (authorid) {
       if (!mongoose.isValidObjectId(authorid)){
         return res.send({ msg: "Enter valid object Id" })}
-      let savedBlogData = await authorModel.findById({ _id: authorid })
+      let savedBlogData = await authorModel.findOne({ _id: authorid })
       if (!savedBlogData) { return res.status(400).send({ status: false, msg: "author id does not exits" }) }
     }
     let token = req.headers["X-Api-Key"]
@@ -282,21 +281,21 @@ const deleteByQueryParams = async function (req, res) {
     let decodedToken = jwt.verify(token, 'project-blog')
     if (!decodedToken) return res.status(400).send({ status: false, msg: "token is not valid" })
     let blogData = await blogModel.findOne({
-       $or: [{ category: req.query.catagory}, { authorId: req.query.authorid }, { tags:req.query.tags}, { isPublished: false }]}).select({authorId:1,_id:0})
+       $or: [{ category: req.query.catagory}, { authorId: req.query.authorid }, { tags:req.query.tags}]}).select({authorId:1,_id:0})
     if(!blogData){return res.status(400).send({status:false, msg:"invalid request"})}
     let authorToBeModifiedByQuery = blogData["authorId"].valueOf()
    // userId for the logged-in user
     let authorLoggedIn = decodedToken.authorId
    // userId comparision to check if the logged-in user is requesting for their own data
-    if (authorToBeModifiedByQuery != authorLoggedIn) return res.status(401).send({ status: false, msg: 'you are not authorised, login with correct user id or password' })
+    if (authorToBeModifiedByQuery !== authorLoggedIn) return res.status(401).send({ status: false, msg: 'you are not authorised, login with correct user id or password' })
 //deletion process
-    let deletedData = await blogModel.findOneAndUpdate(
+    let deletedData = await blogModel.updateMany(
       {
         isDeleted: false, $or: [{ category: req.query.catagory}, { authorId: authorid }, { tags:req.query.tags}, { isPublished: false }]
-      }, { isDeleted: true, deletedAt: new Date() }, { new: true })
+      },{$set:{ isDeleted: true, deletedAt: new Date() }}, )
     //if there is no data then it will retun an error
-    if (!deletedData) { return res.status(400).send({ status: false, msg: "Data  has been already deleted" }) }
-    res.status(200).send(deletedData)
+    if (deletedData["modifiedCount"] ==0) { return res.status(400).send({ status: false, msg: "Data  has been already deleted" }) }
+    res.status(200).send({status:true, data:deletedData})
     
   }
   catch (err) {

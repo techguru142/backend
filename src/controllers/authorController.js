@@ -58,11 +58,12 @@ const createAuthor = async function(req, res){
     res.status(200).send({status:true,data:savedAuthorData})
   }
   catch(err){
-    res.status(500).send({msg:"Error", error:err.message})
+   return res.status(500).send({msg:"Error", error:err.message})
   }
 }
 
 const loginAuthor = async function(req,res){
+  try{
   let email = req.body.email
   let password = req.body.password
   let author = await authorModel.findOne({email:email,password:password})
@@ -77,6 +78,9 @@ const loginAuthor = async function(req,res){
     );
     res.setHeader("x-api-key", token);
     res.send({ status: true, token: token });
+  }catch(err){
+    return res.status(500).send({msg:"Error",Error:err.message})
+  }
   };
 
 module.exports.createAuthor = createAuthor;
