@@ -7,16 +7,7 @@ const mongoose = require('mongoose')
 
 const createBlog = async function (req, res) {
   try {
-    let token = req.headers["X-Api-Key"]
-    if (!token) token = req.headers["x-api-key"]
-    if (!token) return res.status(404).send({ status: false, msg: "token must be present" })
-    let decodedToken = jwt.verify(token, 'project-blog')
-    if (!decodedToken) return res.status(400).send({ status: false, msg: "token is not valid" }) 
-    let authorToBeModified = req.body.authorId
-    //userId for the logged-in user
-    let authorLoggedIn = decodedToken.authorId
-    //userId comparision to check if the logged-in user is requesting for their own data
-    if (authorToBeModified != authorLoggedIn) return res.status(401).send({ status: false, msg: 'you are not authorised, login with correct user id or password' })
+
     let receivedData = req.body
     //title is mandatory
     if (!receivedData.title) { return res.status(400).send({ status: false, msg: "Title is missing" }) }
@@ -40,12 +31,9 @@ const createBlog = async function (req, res) {
     if (!receivedData.category) { return res.status(400).send({ status: false, msg: "category is missing" }) }
 
     if (receivedData.category) {
-      if (typeof receivedData.category != "object") { res.status(400).send({ status: "false", msg: "Category should be in form of Array" }) }
-      if (!isNaN(receivedData.category)) { return res.status(400).send({ status: false, msg: "category can not be number only" }) }
-      let Validation = /^#?[a-zA-Z0-9]+/gm
-      if (!Validation.test(receivedData.category)) { return res.status(400).send({ status: "false", msg: "Category can't contain empty values" }) }
+      if (typeof receivedData.category != "object") { return res.status(400).send({ status: false, msg: "Category should be in form of Array of Strings" }) }
       let flag;
-      if (Validation) {
+      if (typeof receivedData.category === "object") {
         for (let i = 0; i < receivedData.category.length; i++) {
           if (receivedData.category[i].trim().length === 0) {
             flag = "true"
@@ -53,27 +41,42 @@ const createBlog = async function (req, res) {
           }
         }
       }
-      if (flag === "true") { return res.status(400).send({ status: "false", msg: "Category can't contain empty values after first value" }) }
+      if (flag === "true") { return res.status(400).send({ status: false, msg: "Category can't contain empty values" }) }
+
+      for (let i = 0; i < receivedData.category.length; i++) {
+        if (!isNaN(receivedData.category[i])) {
+          return res.status(400).send({ status: false, msg: "You can't enter only number as Category" })
+        }
+
+        if (receivedData.category[i] != receivedData.category[i].trim()) { return res.status(400).send({ status: false, msg: "Category value contains empty spaces at the beginning or end" }) }
+    
+      }
+
     }
 
 
-    if (receivedData.subCategory) {
-      if (typeof receivedData.subCategory != "object") { return res.status(400).send({ status: "false", msg: "Sub Category should be in form of Array" }) }
-      if (!isNaN(receivedData.subCategory)) { return res.status(400).send({ status: false, msg: "subCategory can not be number only" }) }
-      let Validation = /^#?[a-zA-Z0-9]+/gm
-      if (!Validation.test(receivedData.subCategory)) { return res.status(400).send({ status: "false", msg: "Sub Category can't contain empty values" }) }
+    if (receivedData.subcategory) {
+      if (typeof receivedData.subcategory != "object") { return res.status(400).send({ status: false, msg: "Subcategory should be in form of Array" }) }
       let flag;
-      if (Validation) {
-        for (let i = 0; i < receivedData.subCategory.length; i++) {
-          if (receivedData.subCategory[i].trim().length === 0) {
+      if (typeof receivedData.subcategory === "object") {
+        for (let i = 0; i < receivedData.subcategory.length; i++) {
+          if (receivedData.subcategory[i].trim().length === 0) {
             flag = "true"
             break;
           }
         }
       }
-      if (flag === "true") { return res.status(400).send({ status: "false", msg: "Sub Category can't contain empty values after first value" }) }
-    }
+      if (flag === "true") { return res.status(400).send({ status: false, msg: "Subcategory can't contain empty values" }) }
 
+      for (let i = 0; i < receivedData.subcategory.length; i++) {
+        if (!isNaN(receivedData.subcategory[i])) {
+          return res.status(400).send({ status: false, msg: "You can't enter only number as sub category" })
+        }
+
+        if (receivedData.subcategory[i] != receivedData.subcategory[i].trim()) { return res.status(400).send({ status: false, msg: "Sub category value contains empty spaces at the beginning or end" }) }
+    
+      }
+    }
     if (receivedData.tags) {
       if (typeof receivedData.tags != "object") { return res.status(400).send({ status: "false", msg: "Tags should be in form of Array" }) }
       if (!isNaN(receivedData.tags)) { return res.status(400).send({ status: false, msg: "tags should not be number only" }) }
@@ -100,7 +103,7 @@ const createBlog = async function (req, res) {
     //author id validation check
     if (receivedData.authorId) {
       let authorid = receivedData.authorId
-      if (!mongoose.isValidObjectId(authorId))
+      if (!mongoose.isValidObjectId(authorid))
         return res.send({ msg: "Enter valid object Id" })
       let authorId = await authorModel.findById({ _id: authorid })
       if (!authorId) { return res.status(400).send("Invalid author id") }
@@ -116,19 +119,7 @@ const createBlog = async function (req, res) {
 
 const getBlogData = async function (req, res) {
   try {
-    let token = req.headers["X-Api-Key"]
-    if (!token) token = req.headers["x-api-key"]
-    if (!token) return res.status(404).send({ status: false, msg: "token must be present" })
-    let decodedToken = jwt.verify(token, 'project-blog')
-    if (!decodedToken) return res.status(400).send({ status: false, msg: "token is not valid" })
-    let blogData = await blogModel.findOne({
-      $or: [{ authorId: req.query.authorId }, { tags: req.query.tags }, { catagory: req.query.catagory }, { subCatagory: req.query.subCatagory }]}).select({authorId:1,_id:0})
-    if(!blogData){return res.status(400).send({status:false, msg:"Invalid request"})}  
-    let authorToBeModified = blogData["authorId"].valueOf()
-    //userId for the logged-in user
-    let authorLoggedIn = decodedToken.authorId
-    //userId comparision to check if the logged-in user is requesting for their own data
-    if (authorToBeModified != authorLoggedIn) return res.status(401).send({ status: false, msg: 'you are not authorised, login with correct user id or password' })
+  
     let spaceIn = Object.keys(req.query)
     if (!spaceIn[00].trim()) { }
     let authorId = req.query.authorId
@@ -178,16 +169,16 @@ const updateBlog = async function (req, res) {
     if (!titleValidation.test(title)) { return res.status(400).send({ status: false, msg: "Invalid title" }) }
 
     let body = req.body.body
+
     let bodyValidation = /^[-a-z0-9,\/()&:. ]*[a-z][-a-z0-9,\/()&:. ]*$/i
     if (!bodyValidation.test(body)) { return res.status(400).send({ status: false, msg: "Invalid body format" }) }
 
     let tags = req.body.tags
+
     if (tags) {
       if (typeof tags != "object") { return res.status(400).send({ status: false, msg: "Tags should be in form of Array" }) }
-      let tagValidation = /^#?[a-zA-Z0-9]+/gm
-      if (!tagValidation.test(tags)) { return res.status(400).send({ status: false, msg: "Invalid tags" }) }
       let flag;
-      if (tagValidation) {
+      if (typeof tags === "object") {
         for (let i = 0; i < tags.length; i++) {
           if (tags[i].trim().length === 0) {
             flag = "true"
@@ -196,16 +187,23 @@ const updateBlog = async function (req, res) {
         }
       }
       if (flag === "true") { return res.status(400).send({ status: false, msg: "Tags can't contain empty values" }) }
-    }
 
+      for (let i = 0; i < tags.length; i++) {
+        if (!isNaN(tags[i])) {
+          return res.status(400).send({ status: false, msg: "You can't enter only number as Tags" })
+        }
+
+        if (tags[i] != tags[i].trim()) { return res.status(400).send({ status: false, msg: "Tags value contains empty spaces at the beginning or end" }) }
+    
+      }}
 
     let subcategory = req.body.subcategory
+
+    if (subcategory) {
       if (typeof subcategory != "object") { res.status(400).send({ status: false, msg: "Subcategories should be in form of Array" }) }
-      let subcategoryValidation = /^#?[a-zA-Z0-9]+/gm
-      if (!subcategoryValidation.test(subcategory)) { return res.status(400).send({ status: false, msg: "Invalid subcategory" }) }
       let flag;
-      if (subcategoryValidation) {
-        for (let i = 0; i < tags.length; i++) {
+      if (typeof subcategory === "object") {
+        for (let i = 0; i < subcategory.length; i++) {
           if (subcategory[i].trim().length === 0) {
             flag = "true"
             break;
@@ -213,6 +211,19 @@ const updateBlog = async function (req, res) {
         }
       }
       if (flag === "true") { return res.status(400).send({ status: false, msg: "Subcategory can't contain empty values" }) }
+      for (let i = 0; i < subcategory.length; i++) {
+        if (!isNaN(subcategory[i])) {
+          return res.status(400).send({ status: false, msg: "You can't enter only number as sub category" })
+        }
+
+        if (subcategory[i] != subcategory[i].trim()) { return res.status(400).send({ status: false, msg: "Sub category value contains empty spaces at the beginning or end" }) }
+    
+      }
+    }
+    if(req.body.category){return res.status(400).send({status:false,msg:"You are not supposed to update category"})}
+    if(req.body.authorId){return res.status(400).send({status:false,msg:"You are not supposed to update authorId"})}
+    if(req.body.isDeleted){return res.status(400).send({status:false,msg:"You are not supposed to update isDeleted status"})}
+    if(req.body.deletedAt){return res.status(400).send({status:false,msg:"You are not supposed to update Deleted time"})}
     
     let updateData = await blogModel.findOneAndUpdate({ "_id": id }, {
       $set: {
@@ -227,12 +238,13 @@ const updateBlog = async function (req, res) {
       { $push: { tags: tags, subcategory: subcategory } }, { new: true })
     res.status(200).send({ status: true, data: updatedData })
   }
+
   catch (err) {
     console.log(err)
-   return res.status(500).send({ status: false, msg: "", error: err.message })
+    res.status(500).send({ status: false, msg: "", error: err.message })
   }
-
 }
+
 //Delete api
 const deleteByParams = async function (req, res) {
   try {
@@ -254,9 +266,9 @@ const deleteByParams = async function (req, res) {
       if (IsAvailable["authorId"].valueOf() != authorLoggedIn){ return res.status(400).send({
          status: false, msg: 'Author logged is not allowed to modify the requested users data' })}
       //deletion   
-      let deletedData = await blogModel.updateMany({ _id: blogId, isDeleted: false },{$set: { isDeleted: true, deletedAt: new Date() }},)
+      let deletedData = await blogModel.findOneAndUpdate({ _id: blogId, isDeleted: false },{$set: { isDeleted: true, deletedAt: new Date() }},)
       res.status(200).send()
-      if (deletedData["modifiedCount"] ==0) { return res.status(404).send({ status: false, msg: "data not found" }) }
+      if (deletedData==null0) { return res.status(404).send({ status: false, msg: "data not found" }) }
   }
   catch (err) {
     return res.status(500).send({ msg: "Error", error: err.message })
@@ -289,12 +301,12 @@ const deleteByQueryParams = async function (req, res) {
    // userId comparision to check if the logged-in user is requesting for their own data
     if (authorToBeModifiedByQuery !== authorLoggedIn) return res.status(401).send({ status: false, msg: 'you are not authorised, login with correct user id or password' })
 //deletion process
-    let deletedData = await blogModel.updateMany(
+    let deletedData = await blogModel.findOneAndUpdate(
       {
         isDeleted: false, $or: [{ category: req.query.catagory}, { authorId: authorid }, { tags:req.query.tags}, { isPublished: false }]
       },{$set:{ isDeleted: true, deletedAt: new Date() }}, )
     //if there is no data then it will retun an error
-    if (deletedData["modifiedCount"] ==0) { return res.status(400).send({ status: false, msg: "Data  has been already deleted" }) }
+    if (deletedData ==null) { return res.status(400).send({ status: false, msg: "Data  has been already deleted" }) }
     res.status(200).send({status:true, data:deletedData})
     
   }

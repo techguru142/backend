@@ -20,7 +20,7 @@ const blogSchema = new mongoose.Schema({
         type: [String],
         required: true,
     },
-    subCategory: [String],
+    subcategory: [String],
     isDeleted: {
         type: Boolean,
         default: false
@@ -30,7 +30,7 @@ const blogSchema = new mongoose.Schema({
         default: false
     },
     deletedAt: { type: Date },
-    publishdAt: { type: Date }
+    publishedAt: { type: Date }
 }, { timestamps: true })
 
 module.exports = mongoose.model('Blog', blogSchema)
