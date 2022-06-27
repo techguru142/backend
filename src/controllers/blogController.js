@@ -120,15 +120,14 @@ const createBlog = async function (req, res) {
 const getBlogData = async function (req, res) {
   try {
   
-    let spaceIn = Object.keys(req.query)
-    if (!spaceIn[00].trim()) { }
+    // let spaceIn = Object.keys(req.query)
+    // if (!spaceIn[00].trim()) { }
     let authorId = req.query.authorId
     if (authorId) {
       let savedAuthorData = await authorModel.findById({ _id: authorId })
       if (!savedAuthorData) return res.status(400).send({ status: false, msg: "invalid author id" })
     }
-    let savedBlogData = await blogModel.find({
-       isDeleted: false, isPublished: true, $or: [{ authorId: authorId }, { tags: req.query.tags }, { catagory: req.query.catagory }, { subCatagory: req.query.subCatagory }] })
+    let savedBlogData = await blogModel.find({isPublished:true,isDeleted:false,$or: [{tags:req.query.tags},{category:req.query.category},{subcategory:req.query.subcategory},{authorId:req.query.authorId}]})
     // when no one data exits
     if (savedBlogData.length == 0) { return res.status(404).send({ status: false, msg: "Data not founds" }) }
     res.status(200).send({ status: true, data: savedBlogData })
