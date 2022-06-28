@@ -49,10 +49,7 @@ const createAuthor = async function(req, res){
     }
      //password mandatory
      if(!data.password){ return res.status(400).send({status:false, msg:"password is missing"})}
-     if(data.password){
-      let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#$@!%&*?])[A-Za-z\d#$@!%&*?]{8,30}$/
-      if(!data.password.match(passwordRegex)){ return res.status(400).send({status:false,msg:"Password must have atleast Minimum eight characters, one uppercase, one lowercase, one number and one special character:"})}
-     }
+    if(data.password.length<5){return res.status(400).send({status:false, msg:"password should be minimum five character"})}
      //create
     let savedAuthorData = await authorModel.create(data)
     res.status(201).send({status:true,data:savedAuthorData})
@@ -77,7 +74,7 @@ const loginAuthor = async function(req,res){
       "project-blog"
     );
     res.setHeader("x-api-key", token);
-    res.send({ status: true, token: token });
+    res.send({ status: true, data:{token: token }});
   }catch(err){
     return res.status(500).send({msg:"Error",Error:err.message})
   }

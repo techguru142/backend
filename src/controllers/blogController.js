@@ -1,6 +1,5 @@
 const blogModel = require("../models/blogModel")
 const authorModel = require("../models/authorModel")
-const { default: isBoolean } = require("validator/lib/isBoolean")
 const jwt = require('jsonwebtoken')
 const mongoose = require('mongoose')
 
@@ -31,7 +30,7 @@ const createBlog = async function (req, res) {
     if (!receivedData.category) { return res.status(400).send({ status: false, msg: "category is missing" }) }
 
     if (receivedData.category) {
-      if (typeof receivedData.category != "object") { return res.status(400).send({ status: false, msg: "Category should be in form of Array of Strings" }) }
+     // if (typeof receivedData.category != "object") { return res.status(400).send({ status: false, msg: "Category should be in form of Array of Strings" }) }
       let flag;
       if (typeof receivedData.category === "object") {
         for (let i = 0; i < receivedData.category.length; i++) {
@@ -78,7 +77,7 @@ const createBlog = async function (req, res) {
       }
     }
     if (receivedData.tags) {
-      if (typeof receivedData.tags != "object") { return res.status(400).send({ status: "false", msg: "Tags should be in form of Array" }) }
+      //if (typeof receivedData.tags != "object") { return res.status(400).send({ status: "false", msg: "Tags should be in form of Array" }) }
       if (!isNaN(receivedData.tags)) { return res.status(400).send({ status: false, msg: "tags should not be number only" }) }
       let tagValidation = /^#?[a-zA-Z0-9]+/gm
       if (!tagValidation.test(receivedData.tags)) { return res.status(400).send({ status: "false", msg: "Tags can't contain empty values" }) }
@@ -94,10 +93,10 @@ const createBlog = async function (req, res) {
       if (flag === "true") { return res.status(400).send({ status: "false", msg: "Tags can't contain empty values after first value" }) }
     }
 
-    if (!isBoolean(receivedData.isDeleted)) { return res.status(400).send({ status: false, msg: "IsDeleted should have only boolean value" }) }
-    if (!isNaN(receivedData.isDeleted)) { return res.status(400).send({ status: false, msg: "numbers are not a boolean value except 1 or 0" }) }
-    if (!isBoolean(receivedData.isPublished)) { return res.status(400).send({ status: false, msg: "IsPublished should have only boolean value" }) }
-    if (!isNaN(receivedData.isPublushed)) { return res.status(400).send({ status: false, msg: "numbers are not a boolean value except 1 or 0" }) }
+    //if (!isBoolean(receivedData.isDeleted)) { return res.status(400).send({ status: false, msg: "IsDeleted should have only boolean value" }) }
+    //if (!isNaN(receivedData.isDeleted)) { return res.status(400).send({ status: false, msg: "numbers are not a boolean value except 1 or 0" }) }
+   // if (!isBoolean(receivedData.isPublished)) { return res.status(400).send({ status: false, msg: "IsPublished should have only boolean value" }) }
+    //if (!isNaN(receivedData.isPublushed)) { return res.status(400).send({ status: false, msg: "numbers are not a boolean value except 1 or 0" }) }
     //authorId is mandatory
     if (!receivedData.authorId) { return res.status(400).send({ status: false, msg: "author id is missing" }) }
     //author id validation check
@@ -253,7 +252,7 @@ const deleteByParams = async function (req, res) {
     let decodedToken = jwt.verify(token, 'project-blog')
     if (!decodedToken) return res.status(400).send({ status: false, msg: "token is not valid" })
     
-    let blogId = req.params.blogId
+     let blogId = req.params.blogId
     if (!mongoose.isValidObjectId(blogId)){
       return res.send({ msg: "Enter valid object Id" })
     }
@@ -265,9 +264,11 @@ const deleteByParams = async function (req, res) {
       if (IsAvailable["authorId"].valueOf() != authorLoggedIn){ return res.status(400).send({
          status: false, msg: 'Author logged is not allowed to modify the requested users data' })}
       //deletion   
-      let deletedData = await blogModel.findOneAndUpdate({ _id: blogId, isDeleted: false },{$set: { isDeleted: true, deletedAt: new Date() }},)
-      res.status(200).send()
-      if (deletedData==null0) { return res.status(404).send({ status: false, msg: "data not found" }) }
+      let deletedData = await blogModel.findOneAndUpdate({ _id: blogId, isDeleted: false }, { isDeleted: true, deletedAt: new Date() },{new:true})
+      console.log(deletedData)
+      if (deletedData==null) { return res.status(404).send({ status: false, msg: "data has been already deleted" }) }
+      return res.status(200).send({status:true, data:deletedData})
+     
   }
   catch (err) {
     return res.status(500).send({ msg: "Error", error: err.message })
@@ -288,7 +289,7 @@ const deleteByQueryParams = async function (req, res) {
     }
     let token = req.headers["X-Api-Key"]
     if (!token) token = req.headers["x-api-key"]
-    if (!token) return res.status(404).send({ status: false, msg: "token must be present" })
+   if (!token) return res.status(404).send({ status: false, msg: "token must be present" })
     let decodedToken = jwt.verify(token, 'project-blog')
     if (!decodedToken) return res.status(400).send({ status: false, msg: "token is not valid" })
     let blogData = await blogModel.findOne({
@@ -299,13 +300,14 @@ const deleteByQueryParams = async function (req, res) {
     let authorLoggedIn = decodedToken.authorId
    // userId comparision to check if the logged-in user is requesting for their own data
     if (authorToBeModifiedByQuery !== authorLoggedIn) return res.status(401).send({ status: false, msg: 'you are not authorised, login with correct user id or password' })
-//deletion process
+if( req.query.isPublished== "true"){return res.status(400).send({status:false, msg:"you can only enter isPublished:false"})}
+   //deletion process
     let deletedData = await blogModel.findOneAndUpdate(
       {
-        isDeleted: false, $or: [{ category: req.query.catagory}, { authorId: authorid }, { tags:req.query.tags}, { isPublished: false }]
-      },{$set:{ isDeleted: true, deletedAt: new Date() }}, )
+      $or: [{ category: req.query.catagory},{ tags:req.query.tags},{authorId:req.query.authorId},{subcategory:req.query.subcategory},{isPublished:req.query.isPublished}],isDeleted:false
+      },{ isDeleted: true, deletedAt: new Date() },{new:true})
     //if there is no data then it will retun an error
-    if (deletedData ==null) { return res.status(400).send({ status: false, msg: "Data  has been already deleted" }) }
+    if (deletedData == null) { return res.status(400).send({ status: false, msg: "Data  has been already deleted" }) }
     res.status(200).send({status:true, data:deletedData})
     
   }
