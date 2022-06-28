@@ -30,10 +30,17 @@ const createBlog = async function (req, res) {
     if (!receivedData.category) { return res.status(400).send({ status: false, msg: "category is missing" }) }
 
     if (receivedData.category) {
-      // if (typeof receivedData.category != "object") { return res.status(400).send({ status: false, msg: "Category should be in form of Array of Strings" }) }
+      if (typeof receivedData.category != "object") { return res.status(400).send({ status: false, msg: "Category should be in form of Array of Strings" }) }
+      if(receivedData.category.length==0){ return res.status(400).send({status:false,msg:"Category must contain some value"})}
       let flag;
       if (typeof receivedData.category === "object") {
         for (let i = 0; i < receivedData.category.length; i++) {
+
+          
+          if(typeof receivedData.category[i]=='number'){
+            return res.status(400).send({status:false,msg:"You can't enter number as element"})
+          }
+
           if (receivedData.category[i].trim().length === 0) {
             flag = "true"
             break;
@@ -56,9 +63,16 @@ const createBlog = async function (req, res) {
 
     if (receivedData.subcategory) {
       if (typeof receivedData.subcategory != "object") { return res.status(400).send({ status: false, msg: "Subcategory should be in form of Array" }) }
+      if(receivedData.subcategory.length==0){ return res.status(400).send({status:false,msg:"Category must contain some value"})}
       let flag;
       if (typeof receivedData.subcategory === "object") {
         for (let i = 0; i < receivedData.subcategory.length; i++) {
+
+          
+          if(typeof receivedData.subcategory[i]=='number'){
+            return res.status(400).send({status:false,msg:"You can't enter number as element"})
+          }
+
           if (receivedData.subcategory[i].trim().length === 0) {
             flag = "true"
             break;
@@ -77,13 +91,20 @@ const createBlog = async function (req, res) {
       }
     }
     if (receivedData.tags) {
-      //if (typeof receivedData.tags != "object") { return res.status(400).send({ status: "false", msg: "Tags should be in form of Array" }) }
+      if (typeof receivedData.tags != "object") { return res.status(400).send({ status: "false", msg: "Tags should be in form of Array" }) }
+      if(receivedData.tags.length==0){ return res.status(400).send({status:false,msg:"Category must contain some value"})}
       if (!isNaN(receivedData.tags)) { return res.status(400).send({ status: false, msg: "tags should not be number only" }) }
       let tagValidation = /^#?[a-zA-Z0-9]+/gm
       if (!tagValidation.test(receivedData.tags)) { return res.status(400).send({ status: "false", msg: "Tags can't contain empty values" }) }
+
       let flag;
       if (tagValidation) {
         for (let i = 0; i < receivedData.tags.length; i++) {
+          
+          if(typeof receivedData.tags[i]=='number'){
+            return res.status(400).send({status:false,msg:"You can't enter number as element"})
+          }
+
           if (receivedData.tags[i].trim().length === 0) {
             flag = "true"
             break;
@@ -175,9 +196,14 @@ const updateBlog = async function (req, res) {
 
     if (tags) {
       if (typeof tags != "object") { return res.status(400).send({ status: false, msg: "Tags should be in form of Array" }) }
+      if(tags.length==0){ return res.status(400).send({status:false,msg:"Category must contain some value"})}
       let flag;
       if (typeof tags === "object") {
         for (let i = 0; i < tags.length; i++) {
+
+          if(typeof tags[i] == 'number'){
+            return res.status(400).send({status:false,mgs:"You can't enter number as element"})
+          }
           if (tags[i].trim().length === 0) {
             flag = "true"
             break;
@@ -200,9 +226,14 @@ const updateBlog = async function (req, res) {
 
     if (subcategory) {
       if (typeof subcategory != "object") { res.status(400).send({ status: false, msg: "Subcategories should be in form of Array" }) }
+      if(subcategory.length==0){ return res.status(400).send({status:false,msg:"Category must contain some value"})}
       let flag;
       if (typeof subcategory === "object") {
         for (let i = 0; i < subcategory.length; i++) {
+
+          if(typeof subcategory[i]=='number'){
+            return res.status(400).send({status:false,msg:"You can't enter number as element"})
+          }
           if (subcategory[i].trim().length === 0) {
             flag = "true"
             break;
