@@ -4,7 +4,13 @@ const authorModel = require("../models/authorModel")
 
 const createAuthor = async function(req, res){
   try{
+
+
     let data = req.body
+
+
+
+
     //if fname is not present
     if(!data.fname){return res.status(400).send({status:false, msg:"fname is missing"})}
     //if fname is present then please check
@@ -14,6 +20,11 @@ const createAuthor = async function(req, res){
       // if(data.fname.trim().length==0) return res.status(400).send({status:false,msg:"empty space is not allowed"})
     
     }
+
+
+
+
+
     //if lname is not present
     if(!data.lname){return res.status(400).send({status:false, msg:"lname is missing"})}
     //if lname is present then please check
@@ -22,6 +33,11 @@ const createAuthor = async function(req, res){
       let nameValidation = /^[A-Za-z]+$/
       if (!nameValidation.test(data.lname)) { return res.status(400).send({ status:false, msg: "Numbers or whiteSpaces are not allowed in lname" }) }
     }
+
+
+
+
+
     //title mandatory
     if(!data.title){return res.status(400).send({status:false, msg:"title is missing"})}
     if(data.title){
@@ -35,8 +51,13 @@ const createAuthor = async function(req, res){
     
 
     if(condition!="true") {return res.status(400).send({status:"false",msg:"title must be Mr,Mrs and Miss only"})}
-  
     }
+
+
+
+
+
+
     //email mandatory
     if(!data.email){return res.status(400).send({status:false, msg:"email is missing"})}
     let email = data.email
@@ -47,6 +68,12 @@ const createAuthor = async function(req, res){
       if(savedAuthorData.length>0)
         return res.status(400).send({status:false,msg:"Email is already exists"})
     }
+
+
+
+
+
+
      //password mandatory
      if(!data.password){ return res.status(400).send({status:false, msg:"password is missing"})}
     if(data.password.length<5){return res.status(400).send({status:false, msg:"password should be minimum five character"})}
@@ -54,10 +81,17 @@ const createAuthor = async function(req, res){
     let savedAuthorData = await authorModel.create(data)
     res.status(201).send({status:true,data:savedAuthorData})
   }
+
+
+
   catch(err){
    return res.status(500).send({msg:"Error", error:err.message})
   }
 }
+
+
+
+
 
 const loginAuthor = async function(req,res){
   try{
@@ -79,6 +113,10 @@ const loginAuthor = async function(req,res){
     return res.status(500).send({msg:"Error",Error:err.message})
   }
   };
+
+
+
+  
 
 module.exports.createAuthor = createAuthor;
 module.exports.loginAuthor = loginAuthor
