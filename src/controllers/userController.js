@@ -51,6 +51,10 @@ const createUser = async function (req , res) {
     if(uniquePhone) {
         return  res.status(400).send({status :false , message : "Phone Number already exist"})
     }
+    if(password.length >8 && password.length <15) {
+        return  res.status(400).send({status :false , message : "password length should be between 8-15"})
+
+    }
      let data = await userModel.create(userData)
      return  res.status(201).send({status :true , data : data})
 }
