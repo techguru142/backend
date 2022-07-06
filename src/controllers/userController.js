@@ -60,18 +60,19 @@ const loginUser = async function (req, res) {
     try {
         let email = req.body.email
         let password = req.body.password
-        let user = await userModel.findOne({ email: email, password: password })
-        if (!user) { return res.status(400).send({ status: false, message: "Please use correct email or password" }) }
+        
+        let userData = await userModel.findOne({ email: email, password: password })
+        if (!userData) { return res.status(400).send({ status: false, message: "Please use correct email or password" }) }
         let token = jwt.sign(
             {
-                authorId: user._id.toString(),
+                userId: userData._id.toString(),
                 batch: "radon",
                 organisation: "FunctionUp",
             },
             "project-bookManagement"
         );
         res.setHeader("x-api-key", token);
-        res.status(200).send({ status: true, message: "Success", data: { token } });
+        return res.status(200).send({ status: true, message: "Success", data: { token } });
     } catch (err) {
         return res.status(500).send({ msg: "Error", Error: err.message })
     }
