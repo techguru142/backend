@@ -4,11 +4,13 @@ const userSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
-        enum: ["Mr", "Mrs", "Miss"]
+        enum: ["Mr", "Mrs", "Miss"],
+        trim : true
     },
     name: {
         type: String,
-        required: true
+        required: true,
+        trim : true
     },
     phone: {
         type: String,
