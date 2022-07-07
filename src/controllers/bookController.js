@@ -1,5 +1,6 @@
 const bookModel = require("../models/bookModel");
 const userModel = require("../models/userModel");
+const reviewModel=require("../models/reviewModel")
 const ObjectId = require('mongoose').Types.ObjectId;
 
 
@@ -89,12 +90,20 @@ const getBooks = async (req, res) => {
 }
 
 const getBooksById =async(req,res)=>{
-    let {bookId}=req.params
-    booksData =await bookModel.findById(bookId)
+    let bookId=req.params.bookId
+    if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is Invalid !!!!" })
 
-    return res.status(200).send({status:true,data:booksData})
+    booksData =await bookModel.findOne({_id:bookId,isDeleted:false}).lean()
+    if(!booksData) return res.status(404).send({status:false,message:"No Books Found As per BookID"})
+    
+    reviewsData=await reviewModel.find({bookId:bookId,isDeleted: false})
+    if(!reviewsData) return res.status(404).send({status:false,message:"No Reviews Found As per BookID"})
+    booksData.reviewsData=reviewsData
+    return res.status(200).send({status:true,message: 'Books list',data:booksData})
 
 }
+
+
 module.exports.createBook = createBook;
 module.exports.getBooks = getBooks;
 module.exports.getBooksById = getBooksById;
