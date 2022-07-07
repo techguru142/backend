@@ -5,8 +5,7 @@ const bookSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
-        unique: true,
-        lowercase: true
+        unique: true
     },
     excerpt: {
         type: String,
@@ -24,11 +23,10 @@ const bookSchema = new mongoose.Schema({
     },
     subcategory: {
         type: [String],
-        required: true,
-        trim:true
+        required: true
     },
     reviews: { type: Number, default: 0 },
-    deletedAt: { type: Date },
+    // deletedAt: { type: Date, default: null },
     isDeleted: { type: Boolean, default: false },
     releasedAt: { type: Date, required: true, default: null }
 }, { timestamps: true })

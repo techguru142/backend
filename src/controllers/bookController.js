@@ -3,6 +3,10 @@ const userModel = require("../models/userModel");
 const reviewModel=require("../models/reviewModel")
 const ObjectId = require('mongoose').Types.ObjectId;
 
+let validateISBN = /(?=(?:\D*\d){13}(?:(?:\D*\d){3})?$)/;
+let validateDate = /^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/;
+const validateField = /^[a-zA-Z0-9\s\-,?_.]+$/;
+const validCategory = /^[a-zA-Z]+/;
 
 //function to check if tag and sub-catogery string is valid or not ?
 function check(t) {
@@ -24,11 +28,7 @@ const createBook = async (req, res) => {
         const data = req.body;
         const { title, excerpt, userId, ISBN, category, subcategory, reviews, isDeleted, releasedAt } = data;
 
-        let validateISBN = /(?=(?:\D*\d){13}(?:(?:\D*\d){3})?$)/;
-        let validateDate = /^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/gm;
-        const validateField = /^[a-zA-Z0-9\s\-,?_.]+$/;
-        const validCategory = /^[a-zA-Z]+/;
-
+       
         //check for empty body
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "please enter some DETAILS!!!" });
         if (!title) return res.status(400).send({ status: false, message: "TITLE is required!!!" });
@@ -48,7 +48,6 @@ const createBook = async (req, res) => {
 
         // in this blog of code we are checking that subcategory should be valid, u can't use empty space as subcategory
         if (check(subcategory)) return res.status(400).send({ status: false, msg: "subcategory text is invalid" });
-
 
 
         let findTitle = await bookModel.findOne({ title: title });
@@ -71,11 +70,6 @@ const createBook = async (req, res) => {
 
 const getBooks = async (req, res) => {
     queryData = req.query
-<<<<<<< HEAD
-
-    let { userId, category, subcategory } = req.query
-=======
->>>>>>> 592bf85fb2f3539d30a9601dbbf7a65b76bdaaa8
 
     let { userId, category, subcategory, ...rest } = req.query
 
@@ -108,7 +102,52 @@ const getBooksById =async(req,res)=>{
 
 }
 
+const updateBookbyId =async function(req,res) {
+    let bookId = req.params.bookId;
+   
+    let {title, excerpt , releasedAt, ISBN} = req.body
+    if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is Invalid !!!!" })
+    
+    if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "please enter some DETAILS!!!" });
+
+    booksData =await bookModel.findOne({_id:bookId,isDeleted:false})
+    if(!booksData) return res.status(404).send({status:false,message:"No Books Found As per BookID"})
+    
+    if(title) {
+        if (!validateField.test(title)) return res.status(400).send({ status: false, message: "format of title is wrong!!!" });
+
+        let findTitle = await bookModel.findOne({title : title})
+        if(findTitle) {
+            return res.status(400).send({status:false,message: "title already exist"})
+        }
+    }
+    
+    if(ISBN) {
+        if (!validateISBN.test(ISBN)) return res.status(400).send({ status: false, message: "enter valid ISBN number" });
+        let findISBN = await bookModel.findOne({ISBN : ISBN})
+        if(findISBN) {
+            return res.status(400).send({status:false,message: "ISBN already exist"})
+        }
+    }
+    if(releasedAt){
+    if (!validateDate.test(releasedAt)) return res.status(400).send({ status: false, message: "date must be in format  YYYY-MM-DD!!!", });
+    }
+    let updatedBook = await bookModel.findByIdAndUpdate(bookId,req.body,{new : true})
+        return res.status(200).send({status : true , data: updatedBook})
+    
+}
+
+
+
+
+
+
+
+
+
+
 
 module.exports.createBook = createBook;
 module.exports.getBooks = getBooks;
 module.exports.getBooksById = getBooksById;
+module.exports.updateBookbyId =updateBookbyId ;

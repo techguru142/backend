@@ -16,6 +16,8 @@ router.get('/books',  bookController.getBooks);
 
 router.get('/books/:bookId',bookController.getBooksById)
 
+router.put('/books/:bookId',bookController.updateBookbyId)
+
 router.post("/books/:bookId/review",reviewController.addReview)
 
 
