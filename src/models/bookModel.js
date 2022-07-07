@@ -5,7 +5,8 @@ const bookSchema = new mongoose.Schema({
     title: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        lowercase: true
     },
     excerpt: {
         type: String,
