@@ -103,7 +103,16 @@ const getBooksById =async(req,res)=>{
 
 }
 
+const deleteBookById = async (req,res)=>{
+    let bookId = req.params.bookId
+    if(!ObjectId.isValid(bookId)){return res.status(400).send({status:false,message:"invalid Book Id"})}
+    let deleteBookData = await bookModel.findOneAndUpdate({_id:bookId,isDeleted:false}, {isDeleted:true, deletedAt: new Date()},{new:true})
+    if(!deleteBookData){return res.status(404).send({status:false,message:"No Books Found As per BookID"})}
+    return res.status(200).send({status:true,message: 'Deleted Books list',data:deleteBookData})
+}
+
 
 module.exports.createBook = createBook;
 module.exports.getBooks = getBooks;
 module.exports.getBooksById = getBooksById;
+module.exports.deleteBookById = deleteBookById;
