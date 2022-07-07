@@ -102,7 +102,13 @@ const getBooksById =async(req,res)=>{
 
 }
 
-<<<<<<< HEAD
+const deleteBookById = async (req,res)=>{
+    let bookId = req.params.bookId
+    if(!ObjectId.isValid(bookId)){return res.status(400).send({status:false,message:"invalid Book Id"})}
+    let deleteBookData = await bookModel.findOneAndUpdate({_id:bookId,isDeleted:false}, {isDeleted:true, deletedAt: new Date()},{new:true})
+    if(!deleteBookData){return res.status(404).send({status:false,message:"No Books Found As per BookID"})}
+    return res.status(200).send({status:true,message: 'Deleted Books list',data:deleteBookData})
+}
 const updateBookbyId =async function(req,res) {
     let bookId = req.params.bookId;
    
@@ -138,31 +144,8 @@ const updateBookbyId =async function(req,res) {
     
 }
 
-
-
-
-
-
-
-
-
-
-=======
-const deleteBookById = async (req,res)=>{
-    let bookId = req.params.bookId
-    if(!ObjectId.isValid(bookId)){return res.status(400).send({status:false,message:"invalid Book Id"})}
-    let deleteBookData = await bookModel.findOneAndUpdate({_id:bookId,isDeleted:false}, {isDeleted:true, deletedAt: new Date()},{new:true})
-    if(!deleteBookData){return res.status(404).send({status:false,message:"No Books Found As per BookID"})}
-    return res.status(200).send({status:true,message: 'Deleted Books list',data:deleteBookData})
-}
-
->>>>>>> 0395a5254f762a3aa2a09873eacca1524a51bb95
-
 module.exports.createBook = createBook;
 module.exports.getBooks = getBooks;
 module.exports.getBooksById = getBooksById;
-<<<<<<< HEAD
-module.exports.updateBookbyId =updateBookbyId ;
-=======
 module.exports.deleteBookById = deleteBookById;
->>>>>>> 0395a5254f762a3aa2a09873eacca1524a51bb95
+module.exports.updateBookbyId=updateBookbyId;
