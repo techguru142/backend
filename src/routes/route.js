@@ -10,7 +10,7 @@ router.post('/login', userController.loginUser);
 
 router.post('/books', authMW.checkAuth, authMW.Authorization, bookController.createBook);
 
-router.get('/books', authMW.checkAuth, bookController.getBooks);
+router.get('/books',  bookController.getBooks);
 
 
 
