@@ -41,14 +41,6 @@ const createUser = async function (req, res) {
     if (!password) {
         return res.status(400).send({ status: false, message: "password is  Mandatory" })
     }
-<<<<<<< HEAD
-    if(password.length >8 && password.length <15) {
-        return  res.status(400).send({status :false , message : "password length should be between 8-15"})
-
-    }
-     let data = await userModel.create(userData)
-     return  res.status(201).send({status :true , data : data})
-=======
     if (!validPassword.test(password)) {
         return res.status(400).send({ status: false, message: "password Strength is Weak" })
     }
@@ -62,7 +54,6 @@ const createUser = async function (req, res) {
     }
     let data = await userModel.create(userData)
     return res.status(201).send({ status: true, data: data })
->>>>>>> d9299924799656abf221bb8c80c4d8d96474e47a
 }
 
 const loginUser = async function (req, res) {
