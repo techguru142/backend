@@ -2,10 +2,12 @@ const emailValidator = require("email-validator")
 const userModel = require("../models/userModel")
 const jwt = require('jsonwebtoken')
 
+const validName = /^[A-Za-z -.]+$/
+const validPhoneNumber = /^[0]?[6789]\d{9}$/
+let validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/;
+
 const createUser = async function (req, res) {
-    const validName = /^[A-Za-z -.]+$/
-    const validPhoneNumber = /^[0]?[6789]\d{9}$/
-    let validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/;
+   
     let userData = req.body;
     const { title, name, phone, email, password, address } = userData;
 

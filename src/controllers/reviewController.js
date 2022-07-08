@@ -6,7 +6,7 @@ const ObjectId = require('mongoose').Types.ObjectId;
 
 
 const isValid = function (value) {
-    if (typeof value == null) return false; //Here it Checks that Is there value is null or undefined
+    if (typeof value == null) return false; //Here it Checks that Is there value is null or undefined  " " 
     if (typeof value === "string" && value.trim().length === 0) return false; // Here it Checks that Value contain only Space
     return true;
 };
@@ -67,12 +67,37 @@ const deleteReview = async (req, res) => {
             { isDeleted: true, deletedAt: new Date() },
             { new: true }
         );
-        return res.status(200).send({status: true,message: "Successfully deleted review",data: deleteReview,});
+        await bookModel.findByIdAndUpdate(bookId, { $inc: { reviews: -1 } })
+        return res.status(200).send({ status: true, message: "Successfully deleted review", data: deleteReview, });
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message });
     }
 };
 
+const updatedReviewById = async (req, res) => {
+    let bookId = req.params.bookId
+    let reviewId = req.params.reviewId;
+    let { review, rating, name } = req.body
+
+    //bookId validation
+    if (!bookId) return res.status(400).send({ status: false, message: "Please give book id" });
+    if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is Invalid !!!!" })
+
+    //bookId exist in our database
+    const findBook = await bookModel.findOne({ _id: bookId, isDeleted: false }); //check id exist in book model
+    if (!findBook) return res.status(404).send({ status: false, message: "BookId dont exist" });
+
+    //review-
+    if (!ObjectId.isValid(reviewId)) return res.status(400).send({ status: false, message: "Review Id is Invalid !!!!" })
+
+    const findReview = await reviewModel.findOne({ _id: reviewId, bookId: bookId, isDeleted: false, }); //check id exist in review model
+    if (!findReview) return res.status(404).send({ status: false, message: `reviewId dont exist or this reviews is not for " ${book.title} " book`, });
+
+    const updateReview = await reviewModel.findByIdAndUpdate({ _id: reviewId, bookId: bookId, isDeleted: false },req.body,{ new: true });
+    return res.status(200).send({ status: true, message: "Successfully Update review", data: updateReview, });
+
+}
 module.exports.addReview = addReview
-module.exports.deleteReview=deleteReview
+module.exports.deleteReview = deleteReview
+module.exports.updatedReviewById=updatedReviewById
