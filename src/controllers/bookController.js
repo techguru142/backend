@@ -102,7 +102,7 @@ const getBooksById =async(req,res)=>{
 
 }
 
-<<<<<<< HEAD
+
 const updateBookbyId =async function(req,res) {
     let bookId = req.params.bookId;
    
@@ -147,7 +147,6 @@ const updateBookbyId =async function(req,res) {
 
 
 
-=======
 const deleteBookById = async (req,res)=>{
     let bookId = req.params.bookId
     if(!ObjectId.isValid(bookId)){return res.status(400).send({status:false,message:"invalid Book Id"})}
@@ -156,13 +155,9 @@ const deleteBookById = async (req,res)=>{
     return res.status(200).send({status:true,message: 'Deleted Books list',data:deleteBookData})
 }
 
->>>>>>> 0395a5254f762a3aa2a09873eacca1524a51bb95
 
 module.exports.createBook = createBook;
 module.exports.getBooks = getBooks;
 module.exports.getBooksById = getBooksById;
-<<<<<<< HEAD
 module.exports.updateBookbyId =updateBookbyId ;
-=======
 module.exports.deleteBookById = deleteBookById;
->>>>>>> 0395a5254f762a3aa2a09873eacca1524a51bb95

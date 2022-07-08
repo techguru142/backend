@@ -1,11 +1,6 @@
 const reviewModel = require("../models/reviewModel")
 const bookModel = require("../models/bookModel")
 const ObjectId = require('mongoose').Types.ObjectId;
-<<<<<<< HEAD
-// const moment = require("moment")
-=======
-//const moment = require("moment")
->>>>>>> 0395a5254f762a3aa2a09873eacca1524a51bb95
 
 
 
