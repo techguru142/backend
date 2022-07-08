@@ -18,9 +18,13 @@ router.get('/books/:bookId',bookController.getBooksById)
 
 router.put('/books/:bookId',bookController.updateBookbyId)
 
+router.delete('/books/:bookId', bookController.deleteBookById)
+
 router.post("/books/:bookId/review",reviewController.addReview)
 
-router.delete('/books/:bookId', bookController.deleteBookById)
+router.put("/books/:bookId/review/:reviewId",reviewController.updatedReviewById)
+
+router.delete("/books/:bookId/review/:reviewId",reviewController.deleteReview)
 
 
 
