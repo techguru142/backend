@@ -2,7 +2,7 @@ const emailValidator = require("email-validator")
 const userModel = require("../models/userModel")
 const jwt = require('jsonwebtoken')
 
-const validName = /^[A-Za-z -.]+$/
+const validName = /^[a-zA-Z]+/
 const validPhoneNumber = /^[0]?[6789]\d{9}$/
 let validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/;
 
@@ -25,17 +25,24 @@ const createUser = async function (req, res) {
         if (!email) return res.status(400).send({ status: false, message: "email is  Mandatory" })
         if (!password) return res.status(400).send({ status: false, message: "password is  Mandatory" })
 
-        if (Object.keys(address).length === 0) { return res.status(400).send({ status: false, message: "address is empty" }) }
-        if (!isValid(address.street)) return res.status(400).send({ status: false, message: "street name is Invalid" })
-        if (!isValid(address.city)) return res.status(400).send({ status: false, message: "city name is Invalid" })
-        if (isNaN(address.pincode)) return res.status(400).send({ status: false, message: "pincode should be a number" })
-        if (address.pincode.length !== 6) return res.status(400).send({ status: false, message: "pincode should be six digit only" })
-
-
         if (!validName.test(name)) return res.status(400).send({ status: false, message: "name is Invalid" })
         if (!validPhoneNumber.test(phone)) return res.status(400).send({ status: false, message: "phoneNumber is incorrect" })
         if (!emailValidator.validate(email)) return res.status(400).send({ status: false, message: "Provide email in correct format  " })
-        if (!validPassword.test(password)) return res.status(400).send({ status: false, message: "password should be min 8 and max 15 char length, ex:Nitin@123" })
+        if (!validPassword.test(password)) return res.status(400).send({ status: false, message: "password must have atleast 1digit 1uppercase , 1lowercase , special symbols(@$!%*?&) and between 8-15 range, ex:Nitin@123" })
+
+        if (address) {
+            if (Object.keys(address).length === 0) { return res.status(400).send({ status: false, message: "address is empty" }) }
+            if (address.street) {
+                if (!isValid(address.street)) return res.status(400).send({ status: false, message: "street name is Invalid" })
+            }
+            if (address.city) {
+                if (!isValid(address.city)) return res.status(400).send({ status: false, message: "city name is Invalid" })
+            }
+            if (address.pincode) {
+                if (isNaN(address.pincode)) return res.status(400).send({ status: false, message: "pincode should be a number" })
+                if (address.pincode.length !== 6) return res.status(400).send({ status: false, message: "pincode should be six digit only" })
+            }
+        }
 
         let uniqueEmail = await userModel.findOne({ email: email })
         if (uniqueEmail) return res.status(400).send({ status: false, message: "Email already exist" })

@@ -38,7 +38,10 @@ const createBook = async (req, res) => {
         if (!category) return res.status(400).send({ status: false, message: "CATEGORY is required!!!" });
         if (!subcategory) return res.status(400).send({ status: false, message: "SUBCATEGORY is type is invalid!!!" });
         if (!releasedAt) return res.status(400).send({ status: false, message: "RELEASED DATE is required!!!" });
-
+        if(isDeleted)return res.status(400).send({ status: false, message: " CAN'T DELETED AT TIME OF CREATION!!!" })
+        if(reviews){
+            if(reviews!== 0) return res.status(400).send({ status: false, message: "You Can't implement reviews at time of Creation" })
+        }
 
 
         if (!validateField.test(title)) return res.status(400).send({ status: false, message: "format of title is wrong!!!" });
