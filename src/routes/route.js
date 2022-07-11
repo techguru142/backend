@@ -12,13 +12,13 @@ router.post('/login', userController.loginUser);
 
 router.post('/books',authMW.Authorization, bookController.createBook);
 
-router.get('/books',  bookController.getBooks);
+router.get('/books', authMW.checkAuth, bookController.getBooks);
 
-router.get('/books/:bookId',bookController.getBooksById)
+router.get('/books/:bookId', authMW.checkAuth, bookController.getBooksById)
 
-router.put('/books/:bookId',bookController.updateBookbyId)
+router.put('/books/:bookId',authMW.Authorization, bookController.updateBookbyId)
 
-router.delete('/books/:bookId', bookController.deleteBookById)
+router.delete('/books/:bookId',authMW.Authorization, bookController.deleteBookById)
 
 router.post("/books/:bookId/review",reviewController.addReview)
 
