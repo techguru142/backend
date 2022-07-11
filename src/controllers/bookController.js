@@ -117,7 +117,7 @@ const deleteBookById = async (req, res) => {
         if (!ObjectId.isValid(bookId)) { return res.status(400).send({ status: false, message: "invalid Book Id" }) }
         let deleteBookData = await bookModel.findOneAndUpdate({ _id: bookId, isDeleted: false }, { isDeleted: true, deletedAt: new Date() }, { new: true })
         if (!deleteBookData) { return res.status(404).send({ status: false, message: "No Books Found As per BookID" }) }
-        return res.status(200).send({ status: true, message: 'Deleted Books list', data: deleteBookData })
+        return res.status(200).send({ status: true, message: 'Book data deleted successfully', data: deleteBookData })
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message });
     }

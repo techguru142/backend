@@ -66,6 +66,7 @@ const loginUser = async function (req, res) {
                 userId: userData._id.toString(),
                 batch: "radon",
                 organisation: "FunctionUp",
+                
             },
             "project-bookManagement"
         );
