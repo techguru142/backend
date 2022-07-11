@@ -18,7 +18,7 @@ const addReview = async (req, res) => {
         let { reviewedBy, reviewedAt, rating, review } = req.body
 
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "Body Can't be Empty " })
-        if (!reviewedAt) return res.status(400).send({ status: false, message: "reviewedAt date is Missing" })
+        //if (!reviewedAt) return res.status(400).send({ status: false, message: "reviewedAt date is Missing" })
         if (!rating) return res.status(400).send({ status: false, message: "rating is Missing" })
 
         if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is Invalid !!!!" })
@@ -29,13 +29,14 @@ const addReview = async (req, res) => {
         if (!isValid(reviewedBy)) return res.status(400).send({ status: false, message: " Plz enter Valid reviewedBY" })
         if (!alphaRegex.test(reviewedBy)) return res.status(400).send({ status: false, message: "oops! reviewedBY can not be a number" })
 
-        validDate = /^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/
-        if (!validDate.test(reviewedAt)) return res.status(400).send({ status: false, message: " Plz enter Valid Date as YYYY-MM-DD" })
+        // validDate = /^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/
+        // if (!validDate.test(reviewedAt)) return res.status(400).send({ status: false, message: " Plz enter Valid Date as YYYY-MM-DD" })
 
         if (!(rating >= 1 && rating <= 5)) return res.status(400).send({ status: false, message: " Plz enter Rating between [1-5]" })
 
 
         req.body.bookId = bookId.toString()
+        req.body.reviewedAt=new Date()
         let reviewDate = await reviewModel.create(req.body)
         let updatedBook = await bookModel.findByIdAndUpdate(bookId, { $inc: { reviews: 1 } }, { new: true }).lean()
         updatedBook.reviewDate = reviewDate
