@@ -17,11 +17,7 @@ const addReview = async (req, res) => {
         let { reviewedBy, reviewedAt, rating, review } = req.body
 
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "Body Can't be Empty " })
-<<<<<<< HEAD
-        //if (!reviewedAt) return res.status(400).send({ status: false, message: "reviewedAt date is Missing" })
-=======
         // if (!reviewedAt) return res.status(400).send({ status: false, message: "reviewedAt date is Missing" })
->>>>>>> 83a97f05ff8b96e5d49060be3365ff9024ceffe6
         if (!rating) return res.status(400).send({ status: false, message: "rating is Missing" })
 
         if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is Invalid !!!!" })
@@ -39,11 +35,7 @@ const addReview = async (req, res) => {
 
 
         req.body.bookId = bookId.toString()
-<<<<<<< HEAD
-        req.body.reviewedAt=new Date()
-=======
         req.body.reviewedAt= new Date()
->>>>>>> 83a97f05ff8b96e5d49060be3365ff9024ceffe6
         let reviewDate = await reviewModel.create(req.body)
         let updatedBook = await bookModel.findByIdAndUpdate(bookId, { $inc: { reviews: 1 } }, { new: true }).lean()
         updatedBook.reviewDate = reviewDate

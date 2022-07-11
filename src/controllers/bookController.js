@@ -84,18 +84,11 @@ const getBooks = async (req, res) => {
         if (userId && !ObjectId.isValid(userId)) return res.status(400).send({ status: false, msg: "UserId is Invalid" });
 
 
-<<<<<<< HEAD
-        queryData.isDeleted = false
-        let booksList = await bookModel.find(queryData).sort({ "title": 1 }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
-        if (booksList.length == 0) return res.status(404).send({ status: false, message: "Data not Found!!!" })
-
-=======
         // queryData.isDeleted = false
         let booksList = await bookModel.find({queryData,isDeleted:false}).sort({ "title": 1 }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
         if (booksList.length == 0) {
             return res.status(404).send({ status: false, message: "Data not Found!!!" })
         }
->>>>>>> 83a97f05ff8b96e5d49060be3365ff9024ceffe6
         return res.status(200).send({ status: true, data: booksList })
 
     } catch (err) {
