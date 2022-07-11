@@ -29,7 +29,7 @@ const bookSchema = new mongoose.Schema({
     reviews: { type: Number, default: 0 },
     // deletedAt: { type: Date, default: null },
     isDeleted: { type: Boolean, default: false },
-    releasedAt: { type: Date, required: true, default: null }
-}, { timestamps: true })
+    releasedAt: { type: Date, required: true }
+}, { versionKey: false,timestamps: true }) 
 
 module.exports = mongoose.model("book", bookSchema)
