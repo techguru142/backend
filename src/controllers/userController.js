@@ -15,9 +15,9 @@ const isValid = function (value) {
 const createUser = async function (req, res) {
     try {
         let userData = req.body;
-        const { title, name, phone, email, password, address, ...rest  } = userData;
+        const { title, name, phone, email, password, address, ...rest } = userData;
 
-        if (Object.keys(rest).length >0) return res.status(400).send({ status: false, message: "Invalid attributes in request Body" })
+        if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: "Invalid attributes in request Body" })
         if (Object.keys(userData).length == 0) return res.status(400).send({ status: false, message: "Require-Body Mandatory" })
         if (!title) return res.status(400).send({ status: false, message: "title is  Mandatory" })
         if (!(["Mr", "Mrs", "Miss"].includes(title))) return res.status(400).send({ status: false, message: "title should be Mr Mrs Miss" })
@@ -34,17 +34,17 @@ const createUser = async function (req, res) {
         if (req.body.hasOwnProperty("address")) {
 
             if (typeof address !== "object") { return res.status(400).send({ status: false, message: "address is invalid type" }) }
-            if (Object.keys(address).length ==0) return res.status(400).send({ status: false, message: "address must have atleast one Field" })
+            if (Object.keys(address).length == 0) return res.status(400).send({ status: false, message: "address must have atleast one Field" })
 
-            const {street , city , pincode , ...rest} = req.body.address
-            if (Object.keys(rest).length >0) return res.status(400).send({ status: false, message: "Invalid attributes in address Field" })
+            const { street, city, pincode, ...rest } = req.body.address
+            if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: "Invalid attributes in address Field" })
             if (req.body.address.hasOwnProperty("street")) {
                 if (!isValid(address.street)) return res.status(400).send({ status: false, message: "street name is Invalid" })
             }
             if (req.body.address.hasOwnProperty("city")) {
                 if (!isValid(address.city)) return res.status(400).send({ status: false, message: "city name is Invalid" })
             }
-            if (req.body.address.hasOwnProperty("pincode") ) {
+            if (req.body.address.hasOwnProperty("pincode")) {
                 if (isNaN(address.pincode)) return res.status(400).send({ status: false, message: "pincode should be a number" })
                 if (address.pincode.length !== 6) return res.status(400).send({ status: false, message: "pincode should be six digit only" })
             }
@@ -55,12 +55,12 @@ const createUser = async function (req, res) {
 
         let uniquePhone = await userModel.findOne({ phone: phone })
         if (uniquePhone) return res.status(400).send({ status: false, message: "Phone Number already exist" })
-        
+
         let data = await (await userModel.create(userData))
-       
+
         return res.status(201).send({ status: true, message: 'Success', data: data })
     } catch (err) {
-        return res.status(500).send({status: false, Error: err.message })
+        return res.status(500).send({ status: false, Error: err.message })
     }
 }
 
@@ -80,14 +80,14 @@ const loginUser = async function (req, res) {
                 userId: userData._id.toString(),
                 batch: "radon",
                 organisation: "FunctionUp",
-                exp: Math.floor(Date.now()/1000) + 10*60*60
+                exp: Math.floor(Date.now() / 1000) + 10 * 60 * 60
             },
             "project-bookManagement"
         );
         res.setHeader("x-api-key", token);
         return res.status(200).send({ status: true, message: "Success", data: { token } });
     } catch (err) {
-        return res.status(500).send({status: false, Error: err.message })
+        return res.status(500).send({ status: false, Error: err.message })
     }
 };
 
