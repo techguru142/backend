@@ -33,7 +33,7 @@ const isValid = function (value) {
 const createBook = async (req, res) => {
     try {
         const data = req.body;
-        const { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt,isDeleted, ...rest } = data;
+        const { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt, isDeleted, ...rest } = data;
 
 
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "please enter some DETAILS!!!" });
@@ -45,9 +45,9 @@ const createBook = async (req, res) => {
         if (!category) return res.status(400).send({ status: false, message: "CATEGORY is required!!!" });
         if (!subcategory) return res.status(400).send({ status: false, message: "SUBCATEGORY is type is invalid!!!" });
         if (!releasedAt) return res.status(400).send({ status: false, message: "RELEASED DATE is required!!!" });
-        
-        if (req.body.hasOwnProperty("isDeleted") && isDeleted!==false)
-        {return res.status(400).send({ status: false, message: "isDeleted Can Only be False....at the time of Creation." })}
+
+        if(req.decodedToken!==userId) return res.status(403).send({ status: false, message: "You are UnAuthorized to do the task" });
+        if (req.body.hasOwnProperty("isDeleted") && isDeleted !== false) { return res.status(400).send({ status: false, message: "isDeleted Can Only be False....at the time of Creation." }) }
 
         if (reviews) {
             if (reviews !== 0) return res.status(400).send({ status: false, message: "You Can't implement reviews at time of Creation" })
@@ -86,7 +86,7 @@ const createBook = async (req, res) => {
 
 const getBooks = async (req, res) => {
     try {
-        
+
         queryData = req.query
 
         let { userId, category, subcategory, ...rest } = req.query
