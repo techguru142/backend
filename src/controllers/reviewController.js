@@ -37,9 +37,9 @@ const addReview = async (req, res) => {
 
         req.body.bookId = bookId.toString()
         req.body.reviewedAt = new Date()
-        let reviewDate = await reviewModel.create(req.body)
+        let reviewData = await reviewModel.create(req.body)
         let updatedBook = await bookModel.findByIdAndUpdate(bookId, { $inc: { reviews: 1 } }, { new: true }).lean()
-        updatedBook.reviewDate = reviewDate
+        updatedBook.reviewData = reviewData
         return res.status(201).send({ status: true, message: "Success", data: updatedBook })
     }
     catch (err) {
@@ -87,10 +87,10 @@ const updatedReviewById = async (req, res) => {
         let bookId = req.params.bookId
         let reviewId = req.params.reviewId;
 
-        let { review, rating, name } = req.body
+        let { review, rating, name,...rest } = req.body
 
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "Body Can't be Empty " })
-
+        if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: "Invalid attributes in request Body" })
         if (!ObjectId.isValid(reviewId)) return res.status(400).send({ status: false, message: "Review Id is Invalid !!!!" })
         if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is Invalid !!!!" })
 
@@ -98,12 +98,14 @@ const updatedReviewById = async (req, res) => {
         if (!findReview) return res.status(404).send({ status: false, message: "Review not exist as per review Id in URL", });
 
         //bookId exist in our database
-        const findBook = await bookModel.findOne({ _id: bookId, isDeleted: false }); //check id exist in book model
+        let findBook = await bookModel.findOne({ _id: bookId, isDeleted: false }).lean(); //check id exist in book model
         if (!findBook) return res.status(404).send({ status: false, message: "Book not exist as per Book Id in URL" });
 
         const updateReview = await reviewModel.findOneAndUpdate({ _id: reviewId, bookId: bookId, isDeleted: false }, req.body, { new: true });
         if (!updateReview) return res.status(404).send({ status: false, message: "This Review is Not Belongs to This Book!!!" });
-        return res.status(200).send({ status: true, message: "Successfully Update review", data: updateReview, });
+
+        findBook.reviewData=updateReview;
+        return res.status(200).send({ status: true, message: "Successfully Update review", data: findBook });
 
     } catch (err) {
         return res.status(500).send({ status: false, message: err.message });

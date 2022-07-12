@@ -7,11 +7,14 @@ const checkAuth = function (req, res, next) {
     let token = req.headers["X-Api-Key"]
     if (!token) token = req.headers["x-api-key"]
     if (!token) return res.status(404).send({ status: false, message: "token must be present" })
-    try {
-      decodedToken = jwt.verify(token, 'project-bookManagement')
-    } catch (err) {
-      return res.status(401).send({ status: false, message: "token is not valid" })
-    }
+
+try{
+    decodedToken = jwt.verify(token, 'project-bookManagement')
+    console.log(decodedToken)
+  }catch(error){
+    return res.status(401).send({ status: false, message: "token is Invalid ...." })
+  }
+
 
     next()
   } catch (err) {

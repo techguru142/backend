@@ -10,7 +10,7 @@ const validCategory = /^[a-zA-Z]+/;
 const validTitle = /^[a-zA-Z]+/;
 
 //function to check if tag and sub-catogery string is valid or not ?
-function check(t) {  ///  "motivation"  ["motivation"]
+function check(t) {  
     let regEx = /^[a-zA-Z]+/;
     if (t) {
         if (!Array.isArray(t)) {
