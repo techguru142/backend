@@ -10,7 +10,7 @@ const validCategory = /^[a-zA-Z]+/;
 const validTitle = /^[a-zA-Z]+/;
 
 //function to check if tag and sub-catogery string is valid or not ?
-function check(t) {  
+function check(t) {
     let regEx = /^[a-zA-Z]+/;
     if (t) {
         if (!Array.isArray(t)) {
@@ -35,7 +35,7 @@ const createBook = async (req, res) => {
         const data = req.body;
         const { title, excerpt, userId, ISBN, category, subcategory, reviews, isDeleted, releasedAt, ...rest } = data;
 
-        //check for empty body
+        
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "please enter some DETAILS!!!" });
         if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: "Invalid attributes in request Body" })
         if (!title) return res.status(400).send({ status: false, message: "TITLE is required!!!" });
@@ -86,11 +86,8 @@ const getBooks = async (req, res) => {
         queryData = req.query
 
         let { userId, category, subcategory, ...rest } = req.query
-
         if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, msg: "Invalid filter Keys" });
-
         if (userId && !ObjectId.isValid(userId)) return res.status(400).send({ status: false, msg: "UserId is Invalid" });
-
 
         queryData.isDeleted = false
         let booksList = await bookModel.find(queryData).sort({ "title": 1 }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
@@ -139,9 +136,7 @@ const updateBookbyId = async function (req, res) {
 
         let { title, excerpt, releasedAt, ISBN } = req.body
         if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is Invalid !!!!" })
-
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "please enter some DETAILS!!!" });
-
         booksData = await bookModel.findOne({ _id: bookId, isDeleted: false })
         if (!booksData) return res.status(404).send({ status: false, message: "No Books Found As per BookID" })
 

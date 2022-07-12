@@ -80,7 +80,7 @@ const loginUser = async function (req, res) {
                 userId: userData._id.toString(),
                 batch: "radon",
                 organisation: "FunctionUp",
-                exp: Math.floor(Date.now() / 1000) + 10 * 60 * 60
+                exp: Math.floor(Date.now() / 1000) + 0 * 60 * 60
             },
             "project-bookManagement"
         );
