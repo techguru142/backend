@@ -14,10 +14,12 @@ let alphaRegex = /^[A-Za-z -.]+$/
 const addReview = async (req, res) => {
     try {
         let { bookId } = req.params
-        let { reviewedBy, reviewedAt, rating, review } = req.body
+        let { reviewedBy, reviewedAt, rating, review , ...rest} = req.body
 
         if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is Invalid !!!!" })
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "Body Can't be Empty " })
+        if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: "Invalid attributes in request Body" })
+
         // if (!reviewedAt) return res.status(400).send({ status: false, message: "reviewedAt date is Missing" })
         if (!rating) return res.status(400).send({ status: false, message: "rating is Missing" })
 
@@ -68,7 +70,7 @@ const deleteReview = async (req, res) => {
 
         const deleteReview = await reviewModel.findOneAndUpdate(
             { _id: reviewId, bookId: bookId, isDeleted: false },
-            { isDeleted: true, deletedAt: new Date() },
+            { isDeleted: true},
             { new: true }
         );
         if (!deleteReview) return res.status(404).send({ status: false, message: "This Review is Not Belongs to This Book!!!" });

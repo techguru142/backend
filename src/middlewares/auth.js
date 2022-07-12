@@ -15,7 +15,6 @@ const checkAuth = function (req, res, next) {
       return res.status(401).send({ status: false, message: error.message })
     }
 
-
     next()
   } catch (err) {
     return res.status(500).send({ status: false, Error: err.message })
@@ -37,19 +36,20 @@ const Authorization = async function (req, res, next) {
 
     //let decodedToken = jwt.verify(token, 'project-bookManagement')
     //if (!decodedToken) return res.status(401).send({ status: false, message: "token is not valid" })
-    if(!req.body.hasOwnProperty("userId") && !req.params.hasOwnProperty("userId") )  return res.status(401).send({ status: false, message: "Autherization failed because userId not available!!!" })
+
+    if(!req.body.hasOwnProperty("userId") && !req.params.hasOwnProperty("userId") )  return res.status(400).send({ status: false, message: "UserId not available!!!" })
     if (!req.body.hasOwnProperty("userId")) {
       bookId = req.params.bookId
       if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is invalid in url!!!!" })
       let user = await bookModel.findById(bookId)
-      if (!user) return res.status(400).send({ status: false, message: "Book Id is invalid in url!!!!" })
+      if (!user) return res.status(400).send({ status: false, message: "UserId is invalid in url!!!" })
       userId = user.userId
-
-    }
+      }
+    
     if (userId != decodedToken.userId) {
       return res.status(403).send({ status: false, message: "You are not authorized to Do this Task ..." })
     }
-
+   
     next()
   } catch (err) {
     return res.status(500).send({ status: false, Error: err.message })
