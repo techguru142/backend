@@ -9,15 +9,10 @@ const checkAuth = function (req, res, next) {
     if (!token) return res.status(404).send({ status: false, message: "token must be present" })
 
     try {
-      decodedToken = jwt.verify(token, 'project-bookManagement',function(error,decode,Next){
-        if(error){
-          console.log(error)
-          return error;
-        }
-      });
+      decodedToken = jwt.verify(token, 'project-bookManagement');
       console.log(decodedToken)
     } catch (error) {
-      return res.status(401).send({ status: false, message: "token is Invalid ...." })
+      return res.status(401).send({ status: false, message: error.message })
     }
 
 
@@ -42,7 +37,7 @@ const Authorization = async function (req, res, next) {
 
     //let decodedToken = jwt.verify(token, 'project-bookManagement')
     //if (!decodedToken) return res.status(401).send({ status: false, message: "token is not valid" })
-    if(!req.body.hasOwnProperty("userId") && !req.params.hasOwnProperty("userId") )  return res.status(400).send({ status: false, message: "Autherization failed because userId not available!!!" })
+    if(!req.body.hasOwnProperty("userId") && !req.params.hasOwnProperty("userId") )  return res.status(401).send({ status: false, message: "Autherization failed because userId not available!!!" })
     if (!req.body.hasOwnProperty("userId")) {
       bookId = req.params.bookId
       if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is invalid in url!!!!" })
