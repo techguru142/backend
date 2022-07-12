@@ -37,7 +37,7 @@ const Authorization = async function (req, res, next) {
 
     //let decodedToken = jwt.verify(token, 'project-bookManagement')
     //if (!decodedToken) return res.status(401).send({ status: false, message: "token is not valid" })
-
+    if(!req.body.hasOwnProperty("userId") && !req.params.hasOwnProperty("userId") )  return res.status(400).send({ status: false, message: "Autherization failed because userId not available!!!" })
     if (!req.body.hasOwnProperty("userId")) {
       bookId = req.params.bookId
       if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is invalid in url!!!!" })

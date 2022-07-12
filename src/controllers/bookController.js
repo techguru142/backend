@@ -24,7 +24,7 @@ function check(t) {
     }
 }
 
-const isValidExcerpt = function (value) {
+const isValid = function (value) {
     if (typeof value == "undefined" || typeof value == null) return false;
     if (typeof value === "string" && value.trim().length === 0) return false;
     return true;
@@ -45,7 +45,15 @@ const createBook = async (req, res) => {
         if (!category) return res.status(400).send({ status: false, message: "CATEGORY is required!!!" });
         if (!subcategory) return res.status(400).send({ status: false, message: "SUBCATEGORY is type is invalid!!!" });
         if (!releasedAt) return res.status(400).send({ status: false, message: "RELEASED DATE is required!!!" });
-        if (isDeleted) return res.status(400).send({ status: false, message: " CAN'T DELETED BOOK , AT TIME OF CREATION!!!" })
+        // if (isDeleted == ) return res.status(400).send({ status: false, message: " CAN'T DELETED BOOK , AT TIME OF CREATION!!!" })
+        //check if isDeleted is TRUE/FALSE ?
+        if (isDeleted && (isDeleted === "" || (!(typeof isDeleted == "boolean")))) {
+            return res.status(400).send({ status: false, message: "isDeleted Must be TRUE OR FALSE" });
+      }
+      if (isDeleted)
+      return res.status(400).send({ status: false, message: "you can not set isdeleted True" })
+
+        
 
         if (reviews) {
             if (reviews !== 0) return res.status(400).send({ status: false, message: "You Can't implement reviews at time of Creation" })
@@ -57,7 +65,9 @@ const createBook = async (req, res) => {
         if (!validateISBN.test(ISBN)) return res.status(400).send({ status: false, message: "enter valid ISBN number" });
         if (!validCategory.test(category)) return res.status(400).send({ status: false, message: "plz enter valid Category" });
         if (!validateDate.test(releasedAt)) return res.status(400).send({ status: false, message: "date must be in format  YYYY-MM-DD!!!", });
-        if (!isValidExcerpt(excerpt)) return res.status(400).send({ status: false, message: "invalid excerpt details" });
+        if (!isValid(excerpt)) return res.status(400).send({ status: false, message: "invalid excerpt details" });  
+        // if (typeof isDeleted !== "boolean") return res.status(400).send({ status: false, message: "Feild can't be null" });
+       
 
         // in this blog of code we are checking that subcategory should be valid, u can't use empty space as subcategory
         if (check(subcategory)) return res.status(400).send({ status: false, msg: "subcategory text is invalid" });
