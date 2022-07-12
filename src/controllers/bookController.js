@@ -87,6 +87,7 @@ const createBook = async (req, res) => {
 
 const getBooks = async (req, res) => {
     try {
+        
         queryData = req.query
 
         let { userId, category, subcategory, ...rest } = req.query
