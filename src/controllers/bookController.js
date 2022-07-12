@@ -10,7 +10,7 @@ const validCategory = /^[a-zA-Z]+/;
 const validTitle = /^[a-zA-Z]+/;
 
 //function to check if tag and sub-catogery string is valid or not ?
-function check(t) {  
+function check(t) {
     let regEx = /^[a-zA-Z]+/;
     if (t) {
         if (!Array.isArray(t)) {
@@ -24,7 +24,7 @@ function check(t) {
     }
 }
 
-const isValidExcerpt = function (value) {
+const isValid = function (value) {
     if (typeof value == "undefined" || typeof value == null) return false;
     if (typeof value === "string" && value.trim().length === 0) return false;
     return true;
@@ -33,9 +33,9 @@ const isValidExcerpt = function (value) {
 const createBook = async (req, res) => {
     try {
         const data = req.body;
-        const { title, excerpt, userId, ISBN, category, subcategory, reviews, isDeleted, releasedAt, ...rest } = data;
+        const { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt,isDeleted, ...rest } = data;
 
-        //check for empty body
+
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "please enter some DETAILS!!!" });
         if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: "Invalid attributes in request Body" })
         if (!title) return res.status(400).send({ status: false, message: "TITLE is required!!!" });
@@ -45,7 +45,9 @@ const createBook = async (req, res) => {
         if (!category) return res.status(400).send({ status: false, message: "CATEGORY is required!!!" });
         if (!subcategory) return res.status(400).send({ status: false, message: "SUBCATEGORY is type is invalid!!!" });
         if (!releasedAt) return res.status(400).send({ status: false, message: "RELEASED DATE is required!!!" });
-        if (isDeleted) return res.status(400).send({ status: false, message: " CAN'T DELETED BOOK , AT TIME OF CREATION!!!" })
+        
+        if (req.body.hasOwnProperty("isDeleted") && isDeleted!==false)
+        {return res.status(400).send({ status: false, message: "isDeleted Can Only be False....at the time of Creation." })}
 
         if (reviews) {
             if (reviews !== 0) return res.status(400).send({ status: false, message: "You Can't implement reviews at time of Creation" })
@@ -57,7 +59,9 @@ const createBook = async (req, res) => {
         if (!validateISBN.test(ISBN)) return res.status(400).send({ status: false, message: "enter valid ISBN number" });
         if (!validCategory.test(category)) return res.status(400).send({ status: false, message: "plz enter valid Category" });
         if (!validateDate.test(releasedAt)) return res.status(400).send({ status: false, message: "date must be in format  YYYY-MM-DD!!!", });
-        if (!isValidExcerpt(excerpt)) return res.status(400).send({ status: false, message: "invalid excerpt details" });
+        if (!isValid(excerpt)) return res.status(400).send({ status: false, message: "invalid excerpt details" });
+        // if (typeof isDeleted !== "boolean") return res.status(400).send({ status: false, message: "Feild can't be null" });
+
 
         // in this blog of code we are checking that subcategory should be valid, u can't use empty space as subcategory
         if (check(subcategory)) return res.status(400).send({ status: false, msg: "subcategory text is invalid" });
@@ -86,11 +90,8 @@ const getBooks = async (req, res) => {
         queryData = req.query
 
         let { userId, category, subcategory, ...rest } = req.query
-
         if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, msg: "Invalid filter Keys" });
-
         if (userId && !ObjectId.isValid(userId)) return res.status(400).send({ status: false, msg: "UserId is Invalid" });
-
 
         queryData.isDeleted = false
         let booksList = await bookModel.find(queryData).sort({ "title": 1 }).select({ _id: 1, title: 1, excerpt: 1, userId: 1, category: 1, releasedAt: 1, reviews: 1 })
@@ -139,9 +140,7 @@ const updateBookbyId = async function (req, res) {
 
         let { title, excerpt, releasedAt, ISBN } = req.body
         if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is Invalid !!!!" })
-
         if (Object.keys(req.body).length == 0) return res.status(400).send({ status: false, message: "please enter some DETAILS!!!" });
-
         booksData = await bookModel.findOne({ _id: bookId, isDeleted: false })
         if (!booksData) return res.status(404).send({ status: false, message: "No Books Found As per BookID" })
 

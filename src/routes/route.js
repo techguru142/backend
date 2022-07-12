@@ -5,7 +5,7 @@ const reviewController=require("../controllers/reviewController")
 const authMW = require("../middlewares/auth")
 
 const router = express.Router()
-
+//Api for Creat New User
 router.post("/register", userController.createUser);
 
 router.post('/login', userController.loginUser);
@@ -25,6 +25,8 @@ router.post("/books/:bookId/review",reviewController.addReview)
 router.put("/books/:bookId/review/:reviewId",reviewController.updatedReviewById)
 
 router.delete("/books/:bookId/review/:reviewId",reviewController.deleteReview)
+
+router.all("/**",function(req,res){return res.status(404).send({status:false,message:"Requested Api is Not Available"})})
 
 
 

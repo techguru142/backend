@@ -2,9 +2,11 @@ const emailValidator = require("email-validator")
 const userModel = require("../models/userModel")
 const jwt = require('jsonwebtoken')
 
-const validName = /^[a-zA-Z]+/
+const validName = /^[a-zA-Z ]{3,20}$/
 const validPhoneNumber = /^[0]?[6789]\d{9}$/
-let validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/;
+const validPassword = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,15}$/;
+const validEmail=/[a-z0-9]+@[a-z]+\.[a-z]{2,3}/
+
 
 const isValid = function (value) {
     if (typeof value == "undefined" || typeof value == null) return false;
@@ -17,8 +19,10 @@ const createUser = async function (req, res) {
         let userData = req.body;
         const { title, name, phone, email, password, address, ...rest } = userData;
 
+        
+        if (Object.keys(userData).length == 0) return res.status(400).send({ status: false, message: "Plz add some data in Request Body ..!!" })
         if (Object.keys(rest).length > 0) return res.status(400).send({ status: false, message: "Invalid attributes in request Body" })
-        if (Object.keys(userData).length == 0) return res.status(400).send({ status: false, message: "Require-Body Mandatory" })
+
         if (!title) return res.status(400).send({ status: false, message: "title is  Mandatory" })
         if (!(["Mr", "Mrs", "Miss"].includes(title))) return res.status(400).send({ status: false, message: "title should be Mr Mrs Miss" })
         if (!name) return res.status(400).send({ status: false, message: "name is  Mandatory" })
@@ -28,7 +32,7 @@ const createUser = async function (req, res) {
 
         if (!validName.test(name)) return res.status(400).send({ status: false, message: "name is Invalid" })
         if (!validPhoneNumber.test(phone)) return res.status(400).send({ status: false, message: "phoneNumber is incorrect" })
-        if (!emailValidator.validate(email)) return res.status(400).send({ status: false, message: "Provide email in correct format  " })
+        if (!validEmail.test(email)) return res.status(400).send({ status: false, message: "Provide email in correct format  " })
         if (!validPassword.test(password)) return res.status(400).send({ status: false, message: "password must have atleast 1digit , 1uppercase , 1lowercase , special symbols(@$!%*?&) and between 8-15 range, ex:Nitin@123" })
 
         if (req.body.hasOwnProperty("address")) {
@@ -56,7 +60,7 @@ const createUser = async function (req, res) {
         let uniquePhone = await userModel.findOne({ phone: phone })
         if (uniquePhone) return res.status(400).send({ status: false, message: "Phone Number already exist" })
 
-        let data = await (await userModel.create(userData))
+        let data = await userModel.create(userData)
 
         return res.status(201).send({ status: true, message: 'Success', data: data })
     } catch (err) {
