@@ -53,7 +53,6 @@ const createBook = async (req, res) => {
             if (reviews !== 0) return res.status(400).send({ status: false, message: "You Can't implement reviews at time of Creation" })
         }
 
-
         if (!validTitle.test(title)) return res.status(400).send({ status: false, message: "format of title is wrong!!!" });
         if (!ObjectId.isValid(userId)) return res.status(400).send({ status: false, msg: "UserId is Invalid" });
         if (!validateISBN.test(ISBN)) return res.status(400).send({ status: false, message: "enter valid ISBN number" });
