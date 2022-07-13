@@ -60,6 +60,7 @@ const createBook = async (req, res) => {
         if (!validCategory.test(category)) return res.status(400).send({ status: false, message: "plz enter valid Category" });
         if (!validateDate.test(releasedAt)) return res.status(400).send({ status: false, message: "date must be in format  YYYY-MM-DD!!!", });
         if (!isValid(excerpt)) return res.status(400).send({ status: false, message: "invalid excerpt details" });
+        if (!isValid(reviews)) return res.status(400).send({ status: false, message: "invalid reviews details" });
         // if (typeof isDeleted !== "boolean") return res.status(400).send({ status: false, message: "Feild can't be null" });
 
 
