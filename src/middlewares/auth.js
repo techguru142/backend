@@ -15,7 +15,7 @@ const checkAuth = function (req, res, next) {
       return res.status(401).send({ status: false, message: error.message })
     }
     req.decodedToken = decodedToken.userId
-    console.log(req.decodedToken)
+   // console.log(req.decodedToken)
     next()
   } catch (err) {
     return res.status(500).send({ status: false, Error: err.message })
@@ -28,7 +28,7 @@ const Authorization = async function (req, res, next) {
     bookId = req.params.bookId
     if (!ObjectId.isValid(bookId)) return res.status(400).send({ status: false, message: "Book Id is invalid in url!!!!" })
     let user = await bookModel.findById(bookId)
-    if (!user) return res.status(400).send({ status: false, message: "UserId is invalid in url!!!" })
+    if (!user) return res.status(400).send({ status: false, message: "book id is invalid in url!!!" })
     let userId = user.userId
 
 

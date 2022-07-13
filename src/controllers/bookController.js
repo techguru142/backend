@@ -54,6 +54,7 @@ const createBook = async (req, res) => {
         }
 
         if (!validTitle.test(title)) return res.status(400).send({ status: false, message: "format of title is wrong!!!" });
+        if (!isValid(title)) return res.status(400).send({ status: false, message: "invalid title details" });
         if (!ObjectId.isValid(userId)) return res.status(400).send({ status: false, msg: "UserId is Invalid" });
         if (!validateISBN.test(ISBN)) return res.status(400).send({ status: false, message: "enter valid ISBN number" });
         if (!validCategory.test(category)) return res.status(400).send({ status: false, message: "plz enter valid Category" });
@@ -147,6 +148,7 @@ const updateBookbyId = async function (req, res) {
 
         if (req.body.hasOwnProperty("title")) {
             if (!validateField.test(title)) return res.status(400).send({ status: false, message: "format of title is wrong!!!" });
+            if (!isValid(title)) return res.status(400).send({ status: false, message: "invalid title details" });
             let findTitle = await bookModel.findOne({ title: title })
             if (findTitle) return res.status(400).send({ status: false, message: "title already exist" })
 
@@ -162,7 +164,7 @@ const updateBookbyId = async function (req, res) {
             if (!validateDate.test(releasedAt)) return res.status(400).send({ status: false, message: "date must be in format  YYYY-MM-DD!!!", });
         }
         if (req.body.hasOwnProperty("excerpt")) {
-            if (!isValidExcerpt(excerpt)) return res.status(400).send({ status: false, message: "invalid excerpt details" });
+            if (!isValid(excerpt)) return res.status(400).send({ status: false, message: "invalid excerpt details" });
         }
         let updatedBook = await bookModel.findByIdAndUpdate(bookId, req.body, { new: true })
         return res.status(200).send({ status: true, data: updatedBook })
