@@ -2,16 +2,17 @@ const internModel = require("../Models/internModels");
 const collegeModel = require("../Models/collegeModels");
 const validator = require("validator");
 
-const createIntern = async function (req, res) {
-  const isValid = function (value) {
-    if (typeof value === "undefined" || value === null) return false;
-    if (typeof value === "string" && value.trim().length === 0) return false;
-    return true;
-  };
-  const isValidBody = function (body) {
-    return Object.keys(body).length > 0;
-  };
+const isValid = function (value) {
+  if (typeof value == "undefined" || value == null) return false; //Here it Checks that Is there value is null or undefined
+  if (typeof value === "string" && value.trim().length === 0) return false; // Here it Checks that Value contain only Space
+  return true;
+};
+const isValidBody = function (body) {
+  return Object.keys(body).length > 0;
+};
 
+const createIntern = async function (req, res) {
+  res.setHeader('Access-Control-Allow-Origin','*')
   try {
     let requestBody = req.body;
     //-----------------------------VALIDATION START-----------------------------------//
@@ -79,7 +80,7 @@ const createIntern = async function (req, res) {
       return res
         .status(400)
         .send({ status: false, message: "Please provide valid collegeName." });
-
+    if(requestBody.hasOwnProperty("isDeleted")){
     if (typeof isDeleted !== "boolean")
       return res.status(400).send({
         status: false,
@@ -90,6 +91,7 @@ const createIntern = async function (req, res) {
         status: false,
         msg: "You can't delete data before creation",
       });
+    }
 
     //-------------------------VALIDATION ENDS-------------------------------//
 
@@ -129,6 +131,7 @@ module.exports.createIntern = createIntern;
 /*-------------------------------------------------GET API------------------------------------------------*/
 
 const getCollegeDetails = async function (req, res) {
+  res.setHeader('Access-Control-Allow-Origin','*')
   try {
     let queryData = req.query;
     let name = queryData.collegeName;

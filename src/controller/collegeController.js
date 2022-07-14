@@ -1,16 +1,18 @@
 const collegeModels = require("../Models/collegeModels");
 
-const createCollege = async function (req, res) {
-  const isValid = function (value) {
-    if (typeof value == "undefined" || value == null) return false; //Here it Checks that Is there value is null or undefined
-    if (typeof value === "string" && value.trim().length === 0) return false; // Here it Checks that Value contain only Space
-    return true;
-  };
-  const isValidReqBody = function (body) {
-    //  console.log(body)
-    return Object.keys(body).length > 0; // it Checks Any Key is Present or not
-  };
+const isValid = function (value) {
+  if (typeof value == "undefined" || value == null) return false; //Here it Checks that Is there value is null or undefined
+  if (typeof value === "string" && value.trim().length === 0) return false; // Here it Checks that Value contain only Space
+  return true;
+};
 
+const isValidReqBody = function (body) {
+  //  console.log(body)
+  return Object.keys(body).length > 0; // it Checks Any Key is Present or not
+};
+
+const createCollege = async function (req, res) {
+  res.setHeader('Access-Control-Allow-Origin','*')
   try {
     let data = req.body;
     const { name, fullName, logoLink, isDeleted } = data;
@@ -69,7 +71,7 @@ const createCollege = async function (req, res) {
         status: false,
         message: "Please Provide College Full Name To Create College",
       });
-
+    if(data.hasOwnProperty("isDelete")){
     if (typeof isDeleted !== "boolean")
       return res.status(400).send({
         status: false,
@@ -81,6 +83,7 @@ const createCollege = async function (req, res) {
         status: false,
         msg: "You can't Delete before creation",
       });
+    }
 
     //Unique items
     const duplicatefullNames = await collegeModels.findOne({ name });
