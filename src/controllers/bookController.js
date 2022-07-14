@@ -2,6 +2,7 @@ const bookModel = require("../models/bookModel");
 const userModel = require("../models/userModel");
 const reviewModel = require("../models/reviewModel")
 const ObjectId = require('mongoose').Types.ObjectId;
+const awsController = require("../controllers/awsController")
 
 let validateISBN = /(?=(?:\D*\d){13}(?:(?:\D*\d){3})?$)/;
 let validateDate = /^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$/;
@@ -32,8 +33,16 @@ const isValid = function (value) {
 
 const createBook = async (req, res) => {
     try {
-        const data = req.body;
-        const { title, excerpt, userId, ISBN, category, subcategory, reviews, releasedAt, isDeleted, ...rest } = data;
+
+        let data = req.body;
+        let files = req.files
+
+        if (files && files.length > 0) var uploadedFileURL = await awsController.uploadFile(files[0])
+
+        const { title, excerpt, bookCover, userId, ISBN, category, subcategory, reviews, releasedAt, isDeleted, ...rest } = data;
+        data.bookCover = uploadedFileURL
+        data = JSON.parse(JSON.stringify(data));
+        console.log(data)
 
 
         if (Object.keys(data).length == 0) return res.status(400).send({ status: false, message: "please enter some DETAILS!!!" });
@@ -47,7 +56,7 @@ const createBook = async (req, res) => {
         if (!releasedAt) return res.status(400).send({ status: false, message: "RELEASED DATE is required!!!" });
 
         if(req.decodedToken!==userId) return res.status(403).send({ status: false, message: "You are UnAuthorized to do the task" });
-        if (req.body.hasOwnProperty("isDeleted") && isDeleted !== false) { return res.status(400).send({ status: false, message: "isDeleted Can Only be False....at the time of Creation." }) }
+        if(data.hasOwnProperty("isDeleted") && isDeleted !== false) { return res.status(400).send({ status: false, message: "isDeleted Can Only be False....at the time of Creation." }) }
 
         if (reviews) {
             if (reviews !== 0) return res.status(400).send({ status: false, message: "You Can't implement reviews at time of Creation" })
@@ -60,7 +69,7 @@ const createBook = async (req, res) => {
         if (!validCategory.test(category)) return res.status(400).send({ status: false, message: "plz enter valid Category" });
         if (!validateDate.test(releasedAt)) return res.status(400).send({ status: false, message: "date must be in format  YYYY-MM-DD!!!", });
         if (!isValid(excerpt)) return res.status(400).send({ status: false, message: "invalid excerpt details" });
-        if (!isValid(reviews)) return res.status(400).send({ status: false, message: "invalid reviews details" });
+        //if (!isValid(reviews)) return res.status(400).send({ status: false, message: "invalid reviews details" });
         // if (typeof isDeleted !== "boolean") return res.status(400).send({ status: false, message: "Feild can't be null" });
 
 

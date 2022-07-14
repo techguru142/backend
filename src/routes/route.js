@@ -3,15 +3,20 @@ const userController = require("../controllers/userController")
 const bookController = require("../controllers/bookController")
 const reviewController=require("../controllers/reviewController")
 const authMW = require("../middlewares/auth")
+const awsController=require("../controllers/awsController")
 
 
 const router = express.Router()
+
+
+//router.post("/write-file-aws",awsController.createUrl)
+
 //Api for Creat New User
 router.post("/register", userController.createUser);
 
 router.post('/login', userController.loginUser);
 
-router.post('/books',authMW.checkAuth, bookController.createBook);
+router.post('/books',authMW.checkAuth,bookController.createBook);
 
 router.get('/books', authMW.checkAuth, bookController.getBooks);
 

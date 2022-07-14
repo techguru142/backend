@@ -10,7 +10,7 @@ const checkAuth = function (req, res, next) {
 
     try {
       decodedToken = jwt.verify(token, 'project-bookManagement');
-      console.log(decodedToken)
+     
     } catch (error) {
       return res.status(401).send({ status: false, message: error.message })
     }
