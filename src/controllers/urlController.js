@@ -10,7 +10,8 @@ let createshortUrl = async function (req, res) {
         .status(400)
         .send({ status: false, message: "Please input valid request" });
     }
-    const { longUrl } = req.body;
+    const { longUrl, ...rest } = req.body;
+    if(Object.keys(rest).length>0){return res.status(400).send({status:false, message:"invalid atributes in request"})}
 
     if (!isValid(longUrl)) {
       return res
@@ -68,7 +69,9 @@ let createshortUrl = async function (req, res) {
 
 const getUrl = async function (req, res) {
   try {
-    const urlCode = req.params.urlCode;
+    const {urlCode,...rest} = req.params//.urlCode;
+    
+    if(Object.keys(rest).length>0){return res.status(400).send({status:false, message:"invalid atributes in request"})}
     const findUrlCode = await urlModel.findOne({ urlCode: urlCode });
     if (!findUrlCode) {
       return res.status(404).send({ status: false, message: "URL not found" });
