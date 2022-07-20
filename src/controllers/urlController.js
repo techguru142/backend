@@ -2,6 +2,30 @@ const urlModel = require("../model/urlModel");
 const shortId = require("shortid");
 const axios = require("axios");
 const { isValidRequest, isValid, urlRegx } = require("../validator/validation");
+const { promisify } = require("util");
+const redis = require("redis");
+
+//Connect to redis
+const redisClient = redis.createClient(
+  13190,
+  "redis-13190.c301.ap-south-1-1.ec2.cloud.redislabs.com",
+  { no_ready_check: true }
+);
+redisClient.auth("gkiOIPkytPI3ADi14jHMSWkZEo2J5TDG", function (err) {
+  if (err) throw err;
+});
+
+redisClient.on("connect", async function () {
+  console.log("Connected to Redis..");
+});
+
+//1. connect to the server
+//2. use the commands :
+
+//Connection setup for redis
+
+const SET_ASYNC = promisify(redisClient.SET).bind(redisClient);
+const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
 let createshortUrl = async function (req, res) {
   try {
@@ -11,7 +35,11 @@ let createshortUrl = async function (req, res) {
         .send({ status: false, message: "Please input valid request" });
     }
     const { longUrl, ...rest } = req.body;
-    if(Object.keys(rest).length>0){return res.status(400).send({status:false, message:"invalid atributes in request"})}
+    if (Object.keys(rest).length > 0) {
+      return res
+        .status(400)
+        .send({ status: false, message: "invalid atributes in request" });
+    }
 
     if (!isValid(longUrl)) {
       return res
@@ -69,17 +97,17 @@ let createshortUrl = async function (req, res) {
 
 const getUrl = async function (req, res) {
   try {
-    const {urlCode,...rest} = req.params//.urlCode;
-    
-    if(Object.keys(rest).length>0){return res.status(400).send({status:false, message:"invalid atributes in request"})}
-    const findUrlCode = await urlModel.findOne({ urlCode: urlCode });
-    if (!findUrlCode) {
-      return res.status(404).send({ status: false, message: "URL not found" });
+    const { urlCode } = req.params;
+    let catchedUrl = await GET_ASYNC(`${urlCode}`);
+    if (catchedUrl) {
+      res.send(catchedUrl);
+    } else {
+      let getCatchedUrl = await urlModel.findOne({ urlCode: urlCode });
+      await SET_ASYNC(`${urlCode}`, JSON.stringify(getCatchedUrl));
+      res.send(getCatchedUrl)
     }
-    let longUrl = findUrlCode.longUrl;
-    res.status(302).redirect(longUrl);
-  } catch (error) {
-    return res.status(500).send({ status: false, message: error.message });
+  } catch (err) {
+    return res.status(500).send({ status: false, message: err.message });
   }
 };
 
