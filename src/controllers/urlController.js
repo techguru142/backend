@@ -7,12 +7,12 @@ const redis = require("redis");
 
 //Connect to redis
 const redisClient = redis.createClient(
-  13190,
-  "redis-13190.c301.ap-south-1-1.ec2.cloud.redislabs.com",
+  11612,
+  "redis-11612.c212.ap-south-1-1.ec2.cloud.redislabs.com",
   { no_ready_check: true }
 );
-redisClient.auth("gkiOIPkytPI3ADi14jHMSWkZEo2J5TDG", function (err) {
-  if (err) throw err;
+redisClient.auth("7dY5g7NzvIgoFrI9WwOFy2dw7yntKi6q", function (error) {
+  if (error) throw error;
 });
 
 redisClient.on("connect", async function () {
@@ -29,16 +29,11 @@ const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
 let createshortUrl = async function (req, res) {
   try {
+    let { longUrl } = req.body;
     if (!isValidRequest(req.body)) {
       return res
         .status(400)
         .send({ status: false, message: "Please input valid request" });
-    }
-    const { longUrl, ...rest } = req.body;
-    if (Object.keys(rest).length > 0) {
-      return res
-        .status(400)
-        .send({ status: false, message: "invalid atributes in request" });
     }
 
     if (!isValid(longUrl)) {
@@ -100,12 +95,19 @@ const getUrl = async function (req, res) {
     const { urlCode } = req.params;
     let catchedUrl = await GET_ASYNC(`${urlCode}`);
     if (catchedUrl) {
-      res.send(catchedUrl);
+      catchedUrl = JSON.parse(catchedUrl);
+      longUrl = catchedUrl.longUrl;
+      res.status(302).redirect(longUrl);
     } else {
       let getCatchedUrl = await urlModel.findOne({ urlCode: urlCode });
+      if (!getCatchedUrl) {
+        return res
+          .status(404)
+          .send({ status: false, message: "Data not found" });
+      }
       await SET_ASYNC(`${urlCode}`, JSON.stringify(getCatchedUrl));
-      res.send(getCatchedUrl)
-    }
+      res.send(getCatchedUrl.longUrl);
+    } 
   } catch (err) {
     return res.status(500).send({ status: false, message: err.message });
   }
