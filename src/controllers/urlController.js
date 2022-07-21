@@ -1,6 +1,5 @@
 const urlModel = require("../model/urlModel");
 const shortId = require("shortid");
-const axios = require("axios");
 const { isValidRequest, isValid, urlRegx } = require("../validator/validation");
 const { promisify } = require("util");
 const redis = require("redis");
@@ -29,13 +28,13 @@ const GET_ASYNC = promisify(redisClient.GET).bind(redisClient);
 
 let createshortUrl = async function (req, res) {
   try {
-    let { longUrl } = req.body;
+    let { longUrl, ...rest } = req.body;
     if (!isValidRequest(req.body)) {
       return res
         .status(400)
         .send({ status: false, message: "Please input valid request" });
     }
-
+    if(Object.keys(rest).length>0){ return res.status(400).send({status:false, message:"Invalid attributes in request body"})}
     if (!isValid(longUrl)) {
       return res
         .status(400)
@@ -46,33 +45,18 @@ let createshortUrl = async function (req, res) {
         .status(400)
         .send({ status: false, message: "Please provide a valid URL" });
     }
-    const urlExists = await urlModel
-      .findOne({ longUrl: longUrl })
-      .select({ __v: 0, _id: 0 });
+    let urlExists = await urlModel
+    .findOne({ longUrl: longUrl })
+    .select({ __v: 0, _id: 0 });
+    console.log(urlExists)
 
-    if (urlExists) {
-      return res.status(200).send({
-        status: true,
-        message: `${longUrl.trim()}, This URL has already been shortened`,
-        data: urlExists,
-      });
-    }
+  if (urlExists) {
+    return res.status(409).send({
+      status: true,
+      data: urlExists,
+    });
+  }
 
-    let urlFound = false;
-
-    let object = {
-      method: "get",
-      url: longUrl,
-    };
-    await axios(object)
-      .then((res) => {
-        if (res.status == 201 || res.status == 200) urlFound = true;
-      })
-      .catch((err) => {});
-
-    if (urlFound == false) {
-      return res.status(400).send({ status: false, message: "Invalid URL" });
-    }
 
     const baseUrl = "localhost:3000";
     const urlCode = shortId.generate();
@@ -83,8 +67,8 @@ let createshortUrl = async function (req, res) {
     obj["shortUrl"] = shortUrl;
     obj["urlCode"] = urlCode;
     await urlModel.create(obj);
-
-    return res.status(201).send({ status: true, data: obj });
+    return res.status(201).send({ data: obj });
+    
   } catch (error) {
     return res.status(500).send({ status: false, message: error.message });
   }
