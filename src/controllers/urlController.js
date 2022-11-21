@@ -48,10 +48,10 @@ let createshortUrl = async function (req, res) {
     let urlExists = await urlModel
     .findOne({ longUrl: longUrl })
     .select({ __v: 0, _id: 0 });
-    console.log(urlExists)
+    
 
   if (urlExists) {
-    return res.status(409).send({
+    return res.status(200).send({
       status: true,
       data: urlExists,
     });
@@ -66,6 +66,7 @@ let createshortUrl = async function (req, res) {
     obj["longUrl"] = longUrl;
     obj["shortUrl"] = shortUrl;
     obj["urlCode"] = urlCode;
+
     await urlModel.create(obj);
     return res.status(201).send({ data: obj });
     
